@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Art City · Garson</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0c13;--panel:#16131d;--card:#1d1826;--card2:#241d30;--cream:#F7EEE2;--amber:#FF8A1E;--red:#F0341C;--green:#22c55e;--gold:#FFC93C;--line:rgba(255,220,180,.10);--muted:rgba(247,238,226,.5);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--cream);min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none}
+img{display:block;max-width:100%}
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .title{font-family:'Bebas Neue';font-size:20px;letter-spacing:1px}
+.topbar .who{margin-left:auto;font-size:12px;color:var(--muted);background:var(--card2);padding:5px 10px;border-radius:8px;border:1px solid var(--line);cursor:pointer;font-weight:600}
+.status{padding:6px 16px;font-size:12px;text-align:center;font-weight:600}
+.status.on{background:rgba(34,197,94,.15);color:var(--green)}
+.status.off{background:rgba(240,52,28,.15);color:var(--red)}
+main{padding:16px;max-width:700px;margin:0 auto;padding-bottom:140px}
+.step-title{font-family:'Bebas Neue';letter-spacing:1px;font-size:16px;color:var(--muted);margin:4px 0 12px;text-transform:uppercase;display:flex;align-items:center}
+.zones{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.zone{padding:10px 18px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-weight:600;font-size:14px}
+.zone.active{background:linear-gradient(135deg,var(--amber),var(--red));border-color:transparent;color:#fff}
+.tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.tcard{aspect-ratio:1/.85;border-radius:14px;background:var(--card);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:20px;color:var(--cream)}
+.tcard.active{background:linear-gradient(150deg,var(--amber),var(--red));border-color:transparent;color:#fff}
+.tcard:active{transform:scale(.96)}
+
+.cat-tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.cat-tab{padding:8px 13px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-size:12.5px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.cat-tab.active{background:var(--amber);color:#3a2200;border-color:transparent}
+.search{margin-bottom:12px}
+.search input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--cream);font-size:15px;outline:none;font-family:inherit}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px}
+.prod{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 12px;text-align:left;color:var(--cream);display:flex;flex-direction:column;min-height:84px;justify-content:space-between}
+.prod:active{transform:scale(.96);background:var(--card2)}
+.prod .pn{font-size:13.5px;font-weight:600;line-height:1.3;color:var(--cream)}
+.prod .pp{font-family:'Bebas Neue';font-size:20px;color:var(--gold);margin-top:6px}
+
+/* sepet */
+.sepet{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--line);padding:12px 16px;z-index:30;max-width:700px;margin:0 auto}
+.sepet-items{max-height:130px;overflow-y:auto;margin-bottom:10px}
+.si{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.si .q{background:var(--card2);border-radius:7px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold);font-size:13px}
+.si .n{flex:1;font-size:13.5px}
+.si .rem{width:24px;height:24px;border-radius:6px;background:rgba(240,52,28,.15);color:var(--red);font-size:15px;display:flex;align-items:center;justify-content:center}
+.sepet-foot{display:flex;gap:10px;align-items:center}
+.sepet-foot .cnt{font-size:13px;color:var(--muted)}
+.gonder{flex:1;background:var(--green);color:#062812;font-weight:700;font-size:16px;padding:14px;border-radius:14px;text-align:center}
+.gonder:disabled{opacity:.4}
+.empty{text-align:center;color:var(--muted);padding:30px 20px;font-size:14px}
+.toast{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--cream);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:100;opacity:0;transition:.3s;border:1px solid var(--line);pointer-events:none}
+.toast.show{opacity:1}
+.toast.ok{border-color:var(--green)}
+.hidden{display:none !important}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:150;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:var(--panel);width:100%;max-width:340px;border-radius:18px;border:1.5px solid var(--line);padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.modal-box input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px;color:var(--cream);font-size:16px;margin:14px 0 16px;outline:none;font-family:inherit}
+.modal-box input:focus{border-color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="title">ART CITY · GARSON</span>
+  <span class="who" id="who" onclick="garsonDegistir()">👤 Giriş Yap</span>
+</div>
+<div class="status on" id="netStatus">🟢 Bağlı</div>
+
+<main>
+  <!-- 1. Bölüm ve Masa Seçimi -->
+  <div id="masaSecim">
+    <div class="step-title">1 · Bölüm & Masa Seç</div>
+    <div class="zones" id="zones"></div>
+    <div class="tables" id="tables"></div>
+  </div>
+
+  <!-- 2. Menü & Ürün Seçimi -->
+  <div id="urunSecim" class="hidden">
+    <div class="step-title">
+      <button onclick="masayaGeriDon()" style="background:var(--card);color:var(--cream);border-radius:8px;padding:6px 12px;font-size:13px;margin-right:10px">← Masalar</button>
+      <span id="secilenMasa"></span>
+    </div>
+    <div class="search"><input id="ara" placeholder="Ürün ara..." oninput="renderProds()"></div>
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="prods" id="prods"></div>
+  </div>
+</main>
+
+<!-- Sepet Paneli -->
+<div class="sepet hidden" id="sepet">
+  <div class="sepet-items" id="sepetItems"></div>
+  <div class="sepet-foot">
+    <span class="cnt" id="sepetCnt">0 ürün</span>
+    <button class="gonder" id="gonderBtn" onclick="siparisGonder()" disabled>Siparişi Gönder</button>
+  </div>
+</div>
+
+<!-- Zorunlu Garson İsim Modalı -->
+<div class="modal" id="nameModal">
+  <div class="modal-box">
+    <h3 style="font-family:'Bebas Neue';font-size:24px;letter-spacing:.5px">Garson Girişi</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:4px">Siparişlerin karışmaması için lütfen adınızı yazın:</p>
+    <input id="nameInput" placeholder="Adınız..." maxlength="20" onkeydown="if(event.key==='Enter')garsonKaydet()">
+    <button class="gonder" style="width:100%" onclick="garsonKaydet()">Giriş Yap & Başla</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6vvpguQmXhZDbSZwJU0VCFJhdQq3DoFzb2bVdT2FZtWSzCy9/exec";
+const ZONES = ["Ön", "Orta", "Arka", "Bodrum"];
+
+let MENU = JSON.parse(localStorage.getItem('artcity_menu') || '[]');
+
+let tables = {};
+[["Ön", 4], ["Orta", 6], ["Arka", 5], ["Bodrum", 3]].forEach(([z, n]) => {
+  tables[z] = [];
+  for (let i = 1; i <= n; i++) tables[z].push({ id: z + '-' + i, name: 'Masa ' + i });
+});
+
+let garsonAdi = localStorage.getItem('artcity_garson') || '';
+
+function initGarson() {
+  if (!garsonAdi) {
+    document.getElementById('nameModal').classList.add('open');
+    setTimeout(() => document.getElementById('nameInput').focus(), 150);
+  } else {
+    document.getElementById('who').textContent = '👤 ' + garsonAdi;
+  }
+}
+
+function garsonDegistir() {
+  document.getElementById('nameInput').value = garsonAdi;
+  document.getElementById('nameModal').classList.add('open');
+  setTimeout(() => document.getElementById('nameInput').focus(), 150);
+}
+
+function garsonKaydet() {
+  const val = document.getElementById('nameInput').value.trim();
+  if(!val){
+    toast('Lütfen bir isim girin');
+    return;
+  }
+  garsonAdi = val;
+  localStorage.setItem('artcity_garson', garsonAdi);
+  document.getElementById('who').textContent = '👤 ' + garsonAdi;
+  document.getElementById('nameModal').classList.remove('open');
+  toast('Hoş geldin, ' + garsonAdi, true);
+}
+
+let activeZone = "Ön", activeTableObj = null, activeCat = null, sepet = [];
+
+function toast(m, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.className = 'toast show' + (ok ? ' ok' : '');
+  setTimeout(() => t.className = 'toast', 2000);
+}
+
+function money(n) { return Math.round(n).toLocaleString('tr-TR') + ' ₺'; }
+
+function catList() {
+  const s = new Set();
+  MENU.forEach(m => { if (m.Kategori && m.Fiyat && String(m.Fiyat).trim()) s.add(m.Kategori); });
+  return [...s];
+}
+
+function renderZones() {
+  document.getElementById('zones').innerHTML = ZONES.map(z =>
+    `<button class="zone ${z === activeZone ? 'active' : ''}" onclick="selZone('${z}')">${z} <span style="opacity:.7">(${((tables[z]||[]).length)})</span></button>`
+  ).join('');
+}
+
+function selZone(z) { activeZone = z; renderZones(); renderTables(); }
+
+function renderTables() {
+  const tList = tables[activeZone] || [];
+  document.getElementById('tables').innerHTML = tList.map((m, idx) =>
+    `<button class="tcard" onclick="selMasa(${idx})">${m.name}</button>`
+  ).join('');
+}
+
+function selMasa(idx) {
+  if(!garsonAdi){
+    initGarson();
+    return;
+  }
+  activeTableObj = (tables[activeZone] || [])[idx];
+  if(!activeTableObj) return;
+  const cats = catList();
+  if(!cats.length){
+    toast('Menü yükleniyor...');
+    verileriGuncelle();
+    return;
+  }
+  activeCat = cats[0];
+  sepet = [];
+  document.getElementById('secilenMasa').textContent = activeZone + ' · ' + activeTableObj.name;
+  document.getElementById('masaSecim').classList.add('hidden');
+  document.getElementById('urunSecim').classList.remove('hidden');
+  document.getElementById('sepet').classList.remove('hidden');
+  renderCatTabs(); 
+  renderProds(); 
+  renderSepet();
+}
+
+function masayaGeriDon() {
+  if (sepet.length && !confirm('Gönderilmemiş sipariş var, çıkılsın mı?')) return;
+  activeTableObj = null;
+  sepet = [];
+  document.getElementById('urunSecim').classList.add('hidden');
+  document.getElementById('sepet').classList.add('hidden');
+  document.getElementById('masaSecim').classList.remove('hidden');
+}
+
+function renderCatTabs() {
+  document.getElementById('catTabs').innerHTML = catList().map(c =>
+    `<button class="cat-tab ${c === activeCat ? 'active' : ''}" onclick="selCat('${c}')">${c}</button>`
+  ).join('');
+}
+
+function selCat(c) { activeCat = c; document.getElementById('ara').value = ''; renderProds(); }
+
+function renderProds() {
+  const q = document.getElementById('ara').value.toLocaleLowerCase('tr');
+  let list = MENU.filter(m => m.Fiyat && String(m.Fiyat).trim());
+  if (q) list = list.filter(m => m.Urun.toLocaleLowerCase('tr').includes(q));
+  else list = list.filter(m => m.Kategori === activeCat);
+
+  const container = document.getElementById('prods');
+  container.innerHTML = '';
+  if (!list.length) { container.innerHTML = '<div class="empty">Ürün yok</div>'; return; }
+
+  list.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'prod';
+    btn.onclick = () => ekle(m.Urun, parseInt(m.Fiyat));
+    btn.innerHTML = `<div class="pn">${m.Urun}</div><div class="pp">${money(parseInt(m.Fiyat))}</div>`;
+    container.appendChild(btn);
+  });
+}
+
+function ekle(urun, fiyat) {
+  const ex = sepet.find(s => s.urun === urun);
+  if (ex) ex.adet++; else sepet.push({ urun, fiyat, adet: 1 });
+  renderSepet();
+  toast(urun + ' eklendi', true);
+}
+
+function sepettenCikar(i) { sepet.splice(i, 1); renderSepet(); }
+
+function renderSepet() {
+  const items = document.getElementById('sepetItems');
+  if (!sepet.length) {
+    items.innerHTML = '<div class="empty" style="padding:10px">Sepet boş</div>';
+  } else {
+    items.innerHTML = sepet.map((s, i) => `
+      <div class="si">
+        <span class="q">${s.adet}</span>
+        <span class="n">${s.urun}</span>
+        <span style="color:var(--gold);font-size:13px">${money(s.fiyat * s.adet)}</span>
+        <button class="rem" onclick="sepettenCikar(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+  const cnt = sepet.reduce((a, s) => a + s.adet, 0);
+  document.getElementById('sepetCnt').textContent = cnt + ' ürün · ' + money(sepet.reduce((a, s) => a + s.fiyat * s.adet, 0));
+  document.getElementById('gonderBtn').disabled = !sepet.length;
+}
+
+// Offline Kuyruk & Gönderim
+let kuyruk = JSON.parse(localStorage.getItem('artcity_garson_kuyruk') || '[]');
+function kuyrukKaydet() { localStorage.setItem('artcity_garson_kuyruk', JSON.stringify(kuyruk)); }
+
+async function siparisGonder() {
+  if (!sepet.length || !activeTableObj) return;
+  if (!garsonAdi) {
+    initGarson();
+    return;
+  }
+
+  const veri = {
+    tip: 'acikSiparis',
+    masa: activeZone + ' · ' + activeTableObj.name,
+    bolum: activeZone,
+    garson: garsonAdi,
+    urunler: sepet.map(s => ({ urun: s.urun, fiyat: s.fiyat, adet: s.adet })),
+    id: Date.now() + '-' + Math.random().toString(36).slice(2, 7)
+  };
+
+  kuyruk.push(veri);
+  kuyrukKaydet();
+
+  const adet = sepet.reduce((a, s) => a + s.adet, 0);
+  const hedefMasa = activeZone + ' ' + activeTableObj.name;
+  sepet = [];
+  renderSepet();
+  toast('✓ ' + adet + ' ürün kasaya iletildi (' + hedefMasa + ')', true);
+  kuyrukIsle();
+}
+
+let kuyrukCalisiyor = false;
+async function kuyrukIsle() {
+  if (kuyrukCalisiyor || !kuyruk.length) return;
+  kuyrukCalisiyor = true;
+  while (kuyruk.length) {
+    try {
+      await fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(kuyruk[0])
+      });
+      kuyruk.shift();
+      kuyrukKaydet();
+    } catch (e) {
+      break;
+    }
+  }
+  kuyrukCalisiyor = false;
+  guncelleNet();
+}
+
+function guncelleNet() {
+  const el = document.getElementById('netStatus');
+  if (kuyruk.length) {
+    el.className = 'status off';
+    el.textContent = '🔴 ' + kuyruk.length + ' sipariş bekliyor (internet gelince gidecek)';
+  } else {
+    el.className = 'status on';
+    el.textContent = '🟢 Bağlı — siparişler anında kasaya gidiyor';
+  }
+}
+
+async function verileriGuncelle() {
+  try {
+    const res = await fetch(SHEETS_URL);
+    const json = await res.json();
+    if(json && json.ok) {
+      if(Array.isArray(json.menu) && json.menu.length > 0) {
+        MENU = json.menu;
+        localStorage.setItem('artcity_menu', JSON.stringify(MENU));
+        if(!document.getElementById('urunSecim').classList.contains('hidden')){
+          renderCatTabs();
+          renderProds();
+        }
+      }
+      if(json.masalar) {
+        tables = json.masalar;
+        renderZones();
+        renderTables();
+      }
+    }
+  } catch(e) {}
+}
+
+initGarson();
+renderZones();
+renderTables();
+guncelleNet();
+kuyrukIsle();
+verileriGuncelle();
+
+setInterval(kuyrukIsle, 5000);
+setInterval(verileriGuncelle, 5000);
+window.addEventListener('online', kuyrukIsle);
+</script>
+</body>
+</html>
