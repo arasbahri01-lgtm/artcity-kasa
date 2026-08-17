@@ -693,22 +693,37 @@ function gecmisiMasayaGeriAl(idx){
     urun: u.urun, fiyat: u.fiyat, qty: u.qty, ikram: false
   }));
 
-  sheetsGonder({ tip: 'gecmisSil', masa: kayit.masa, saat: kayit.saat, tarih: isGunuTR() });
+  sheetsGonder({ 
+    tip: 'gecmisSil', 
+    masa: kayit.masa, 
+    saat: kayit.saat, 
+    tarih: isGunuTR(),
+    urunlerListesi: kayit.urunlerDizi || []
+  });
+
   gunSatislar.splice(idx, 1);
   localKaydet();
   closeModal('gecmisModal');
   selTable(targetId);
-  toast(kayit.masa + ' tekrar açıldı ✓', true);
+  toast(kayit.masa + ' tekrar masaya açıldı ve satış silindi ✓', true);
 }
 
 function gecmisKayitSil(idx){
-  if(!confirm('Bu adisyon kaydını tamamen silmek istediğinize emin misiniz?')) return;
+  if(!confirm('Bu adisyon kaydını Google Sheets ve kasadan tamamen silmek istediğinize emin misiniz?')) return;
   const kayit = gunSatislar[idx];
-  sheetsGonder({ tip: 'gecmisSil', masa: kayit.masa, saat: kayit.saat, tarih: isGunuTR() });
+  
+  sheetsGonder({ 
+    tip: 'gecmisSil', 
+    masa: kayit.masa, 
+    saat: kayit.saat, 
+    tarih: isGunuTR(),
+    urunlerListesi: kayit.urunlerDizi || []
+  });
+
   gunSatislar.splice(idx, 1);
   localKaydet();
   openGecmis();
-  toast('Adisyon kaydı silindi');
+  toast('Adisyon Google Sheets kayıtlarından silindi ✓');
 }
 
 // ========== ÖDEME & HESAP KAPATMA ==========
