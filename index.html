@@ -53,7 +53,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .ebtn{padding:8px 6px;border-radius:9px;font-size:12.5px;font-weight:700;font-family:inherit;color:#fff}
 .ebtn.rename{background:var(--amber);color:#3a2200}
 .ebtn.del{background:var(--red)}
-.table-add{border:1.5px dashed var(--line);background:transparent;color:var(--muted);font-size:30px;display:flex;align-items:center;justify-content:center}
+.table-add{border:1.5px dashed var(--line);background:transparent;color:var(--muted);font-size:30px;display:flex;align-items:center;justify-content:center;min-height:98px}
 
 .adisyon-head{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .adisyon-head .m{font-family:'Bebas Neue';font-size:24px;letter-spacing:.5px}
@@ -178,6 +178,21 @@ button{font-family:inherit;cursor:pointer;border:none}
   </div>
 </div>
 
+<!-- MASA EKLE/DÜZENLE MODAL -->
+<div class="modal" id="masaModal">
+  <div class="modal-panel">
+    <div class="modal-head"><span class="t" id="masaModalTitle">Masa</span><button class="x" onclick="closeModal('masaModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Masa adı / numarası</label><input id="masaAdInput" placeholder="ör. Masa 5, VIP, Bahçe 3" onkeydown="if(event.key==='Enter')masaKaydet()"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn red" id="masaSilBtn" onclick="masaModalSil()" style="display:none">🗑️ Sil</button>
+      <button class="btn ghost" onclick="closeModal('masaModal')">Vazgeç</button>
+      <button class="btn green" onclick="masaKaydet()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <!-- STOK GİRİŞ MODAL -->
 <div class="modal" id="stokModal">
   <div class="modal-panel">
@@ -223,6 +238,25 @@ button{font-family:inherit;cursor:pointer;border:none}
         <button class="btn" style="padding:15px;justify-content:center;font-size:15px" onclick="tamOde('veresiye')">📕 Veresiye</button>
       </div>
       <div class="field" id="tamVeresiyeField" style="display:none;margin-top:12px"><label>Veresiye kime yazılsın?</label><input id="tamVeresiyeName" placeholder="İsim"></div>
+    </div>
+  </div>
+</div>
+
+<!-- İKRAM/İSKONTO MODAL -->
+<div class="modal" id="ikramModal">
+  <div class="modal-panel">
+    <div class="modal-head"><span class="t">İkram / İskonto</span><button class="x" onclick="closeModal('ikramModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>İskonto Tipi</label>
+        <select id="iskTip"><option value="none">İskonto yok</option><option value="yuzde">Yüzde (%)</option><option value="tutar">Tutar (₺)</option></select>
+      </div>
+      <div class="field"><label>İskonto Değeri</label><input type="number" id="iskDeger" placeholder="0"></div>
+      <div style="font-size:12.5px;color:var(--muted);margin:14px 0 8px;font-weight:600">İkram: Son eklenen ürünü ikram eder.</div>
+      <button class="btn gold" style="width:100%;justify-content:center;text-align:center" onclick="sonUrunuIkramEt()">🎁 Son eklenen ürünü ikram et</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal('ikramModal')">Vazgeç</button>
+      <button class="btn green" onclick="iskontoUygula()">Uygula</button>
     </div>
   </div>
 </div>
@@ -305,6 +339,7 @@ let activeZone = "Ön";
 let activeTable = null;
 let catalogCat = null;
 let silmeKilitli = false;
+let editMode = false;
 
 function localKaydet(){
   localStorage.setItem('artcity_tables', JSON.stringify(tables));
@@ -329,22 +364,116 @@ function renderZones(){
 }
 function selZone(z){activeZone=z;renderZones();renderTables();}
 
-function renderTables(){
-  let h='';
-  (tables[activeZone]||[]).forEach(t=>{
-    const ad=adisyonlar[t.id]||[];
-    const dolu=ad.length>0;
-    const tut=hesapToplam(t.id).toplam;
-    h+='<div class="table-card'+(dolu?' dolu':'')+'" onclick="selTable(\''+t.id+'\')">'
-      +'<span class="dot"></span>'
-      +'<span class="tn">'+t.name+'</span>'
-      +(dolu?'<span class="ta">'+money(tut)+'</span>':'<span class="empty">boş</span>')+'</div>';
-  });
-  document.getElementById('tables').innerHTML=h;
+function toggleEditMode(){
+  editMode = !editMode;
+  const btn = document.getElementById('editModeBtn');
+  if(editMode){
+    btn.classList.add('gold');
+    btn.textContent = '✓ Düzenlemeyi Bitir';
+    document.body.classList.add('edit-mode');
+    activeTable = null;
+    renderAdisyon();
+    toast('Düzenleme modu açık');
+  } else {
+    btn.classList.remove('gold');
+    btn.textContent = '✏️ Masaları Düzenle';
+    document.body.classList.remove('edit-mode');
+    toast('Düzenleme modu kapandı', true);
+  }
+  renderTables();
 }
 
-function selTable(id){activeTable=id;renderAdisyon();}
-function deselectTable(){activeTable=null;renderAdisyon();}
+function renderTables(){
+  let h = '';
+  (tables[activeZone]||[]).forEach(t=>{
+    const ad = adisyonlar[t.id]||[];
+    const dolu = ad.length > 0;
+    const tut = hesapToplam(t.id).toplam;
+    
+    if(editMode){
+      h += '<div class="table-card edit'+(dolu?' dolu':'')+'">'
+        + '<span class="tn">'+t.name+'</span>'
+        + (dolu ? '<span class="ta" style="margin-bottom:6px">'+money(tut)+' açık</span>' : '<span class="empty" style="margin-bottom:6px">boş</span>')
+        + '<div class="edit-actions">'
+        + '<button class="ebtn rename" onclick="masaYenidenAdlandir(\''+t.id+'\')">✏️ Ad Değiştir</button>'
+        + '<button class="ebtn del" onclick="masaSil(\''+t.id+'\')">🗑️ Sil</button>'
+        + '</div></div>';
+    } else {
+      h += '<div class="table-card'+(dolu?' dolu':'')+'" onclick="selTable(\''+t.id+'\')">'
+        + '<span class="dot"></span>'
+        + '<span class="tn">'+t.name+'</span>'
+        + (dolu ? '<span class="ta">'+money(tut)+'</span>' : '<span class="empty">boş</span>')
+        + '</div>';
+    }
+  });
+  
+  if(editMode){
+    h += '<button class="table-card table-add" onclick="masaEkle()">＋<span style="font-size:12px;margin-top:4px">Masa Ekle</span></button>';
+  }
+  
+  document.getElementById('tables').innerHTML = h;
+}
+
+let masaModalMode = null;
+function masaEkle(){
+  masaModalMode = 'ekle';
+  if(!tables[activeZone]) tables[activeZone] = [];
+  document.getElementById('masaModalTitle').textContent = activeZone + ' — Yeni Masa';
+  document.getElementById('masaAdInput').value = 'Masa ' + (tables[activeZone].length + 1);
+  document.getElementById('masaSilBtn').style.display = 'none';
+  document.getElementById('masaModal').classList.add('open');
+  setTimeout(()=>{ const i=document.getElementById('masaAdInput'); i.focus(); i.select(); }, 100);
+}
+function masaYenidenAdlandir(id){
+  masaModalMode = id;
+  const t = findTable(id);
+  document.getElementById('masaModalTitle').textContent = 'Masayı Düzenle';
+  document.getElementById('masaAdInput').value = t.name;
+  document.getElementById('masaSilBtn').style.display = '';
+  document.getElementById('masaModal').classList.add('open');
+  setTimeout(()=>{ const i=document.getElementById('masaAdInput'); i.focus(); i.select(); }, 100);
+}
+function masaSil(id){ masaYenidenAdlandir(id); }
+function masaKaydet(){
+  const isim = document.getElementById('masaAdInput').value.trim();
+  if(!isim){ toast('Masa adı boş olamaz'); return; }
+  if(masaModalMode === 'ekle'){
+    if(!tables[activeZone]) tables[activeZone] = [];
+    tables[activeZone].push({ id: activeZone + '-' + Date.now(), name: isim });
+    toast('"'+isim+'" eklendi', true);
+  } else {
+    for(const z of ZONES){
+      const m = (tables[z]||[]).find(x => x.id === masaModalMode);
+      if(m){ m.name = isim; break; }
+    }
+    toast('Ad değiştirildi: ' + isim, true);
+  }
+  localKaydet();
+  sheetsGonder({ tip: 'masalariKaydet', masalar: tables });
+  closeModal('masaModal');
+  renderZones();
+  renderTables();
+}
+function masaModalSil(){
+  const id = masaModalMode;
+  if(id === 'ekle') return;
+  for(const z of ZONES){
+    const i = (tables[z]||[]).findIndex(x => x.id === id);
+    if(i >= 0){ tables[z].splice(i, 1); break; }
+  }
+  delete adisyonlar[id];
+  delete iskontolar[id];
+  localKaydet();
+  sheetsGonder({ tip: 'masalariKaydet', masalar: tables });
+  if(activeTable === id){ activeTable = null; renderAdisyon(); }
+  closeModal('masaModal');
+  renderZones();
+  renderTables();
+  toast('Masa silindi');
+}
+
+function selTable(id){ if(editMode) return; activeTable=id; renderAdisyon(); }
+function deselectTable(){ activeTable=null; renderAdisyon(); }
 
 function findTable(id){
   for(const z of ZONES){
@@ -389,6 +518,9 @@ function renderAdisyon(){
   const {ara,ikram,isk,toplam}=hesapToplam(activeTable);
   document.getElementById('araToplam').textContent=money(ara);
   document.getElementById('genelToplam').textContent=money(toplam);
+  const ir=document.getElementById('ikramRow'),isr=document.getElementById('iskontoRow');
+  if(ikram>0){ir.style.display='';document.getElementById('ikramTut').textContent='-'+money(ikram);}else ir.style.display='none';
+  if(isk>0){isr.style.display='';document.getElementById('iskontoTut').textContent='-'+money(isk);}else isr.style.display='none';
   foot.style.display='';
   renderTables();
 }
@@ -466,6 +598,19 @@ function urunEkle(urun,fiyat){
   const ex = adisyonlar[activeTable].find(l => l.urun === urun && !l.ikram);
   if(ex) ex.qty++; else adisyonlar[activeTable].push({urun,fiyat,qty:1,ikram:false});
   localKaydet();renderAdisyon();toast(urun+' eklendi',true);
+}
+
+function openIkramIskonto(){if(!activeTable)return;const io=iskontolar[activeTable];document.getElementById('iskTip').value=io?io.tip:'none';document.getElementById('iskDeger').value=io?io.deger:'';document.getElementById('ikramModal').classList.add('open');}
+function iskontoUygula(){
+  const tip=document.getElementById('iskTip').value, deger=parseFloat(document.getElementById('iskDeger').value)||0;
+  if(tip==='none'||!deger)delete iskontolar[activeTable];
+  else iskontolar[activeTable]={tip,deger};
+  localKaydet();closeModal('ikramModal');renderAdisyon();toast('İskonto uygulandı');
+}
+function sonUrunuIkramEt(){
+  const ad=adisyonlar[activeTable];if(!ad||!ad.length){toast('Adisyon boş');return;}
+  const son=ad[ad.length-1];son.ikram=true;
+  localKaydet();closeModal('ikramModal');renderAdisyon();toast(son.urun+' ikram edildi 🎁',true);
 }
 
 // ========== STOK YÖNETİMİ ==========
@@ -718,6 +863,41 @@ function giderEkle(){
   localKaydet();closeModal('giderModal');toast('Gider kaydedildi: '+money(t),true);
 }
 
+function openVeresiyeList(){
+  const isimler=Object.keys(veresiyeDefteri);
+  let h='';
+  if(!isimler.length)h='<div class="empty-adisyon">Veresiye kaydı yok.</div>';
+  else{
+    isimler.forEach(isim=>{
+      const hrk=veresiyeDefteri[isim];
+      let bakiye=0;hrk.forEach(x=>bakiye+=(x.tip==='borc'?x.tutar:-x.tutar));
+      h+='<div style="background:var(--card);border-radius:12px;padding:13px;margin-bottom:10px;border:1px solid var(--line)">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+        +'<b style="font-size:15px">'+isim+'</b>'
+        +'<span style="font-family:Bebas Neue;font-size:22px;color:'+(bakiye>0?'var(--red)':'var(--green)')+'">'+money(bakiye)+'</span></div>'
+        +'<div style="font-size:12px;color:var(--muted);margin-bottom:8px">'+hrk.length+' hareket · '+(bakiye>0?'borçlu':'kapalı')+'</div>'
+        +(bakiye>0?`<button class="btn green" style="width:100%;justify-content:center;text-align:center" onclick="veresiyeOde('${isim.replace(/'/g,"\\'")}',${bakiye})">Ödeme Al</button>`:'')
+        +'</div>';
+    });
+  }
+  document.getElementById('veresiyeBody').innerHTML=h;
+  document.getElementById('veresiyeModal').classList.add('open');
+}
+function veresiyeOde(isim,bakiye){
+  if(!gunAcik()){toast('Önce "Gün Aç" deyin');return;}
+  const inp=prompt(isim+' — borç: '+money(bakiye)+'\nÖdenen tutar:', bakiye);
+  if(inp===null)return;
+  const tut=parseFloat(inp)||0;if(tut<=0)return;
+  let tip=(prompt('Ödeme türü? (nakit / kart / iban)','nakit')||'nakit').toLocaleLowerCase('tr');
+  const saat=new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  veresiyeDefteri[isim].push({tarih:new Date().toLocaleString('tr-TR'),tutar:tut,tip:'odeme',odemeTuru:tip});
+  const n=tip.includes('nak')?tut:0, k=tip.includes('kart')?tut:0, ib=tip.includes('iban')?tut:0;
+  gunSatislar.push({saat,zone:'-',masa:'Veresiye: '+isim,urunler:'Borç ödemesi',ara:0,ikram:0,isk:0,toplam:tut,nakit:n,kart:k,iban:ib,veresiye:0});
+  sheetsGonder({tip:'veresiye', isim:isim, tarih:isGunuTR(), saat:saat, islem:'Ödeme', tutar:tut, odemeTuru:tip, not:''});
+  sheetsGonder({tip:'satis', isGunu:isGunu, tarih:isGunuTR(), saat:saat, bolum:'-', masa:'Veresiye tahsilat: '+isim, detay:'Borç ödemesi', araToplam:tut, ikram:0, iskonto:0, netToplam:tut, nakit:n, kart:k, iban:ib, veresiye:0, kasiyer:'Kasa'});
+  localKaydet();toast(isim+' ödeme alındı: '+money(tut),true);openVeresiyeList();
+}
+
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 let kuyruk = JSON.parse(localStorage.getItem('artcity_kuyruk')||'[]');
@@ -745,6 +925,16 @@ async function verileriSenkronizeEt(){
       if(Array.isArray(json.menu) && json.menu.length > 0){
         MENU = json.menu;
         localStorage.setItem('artcity_menu', JSON.stringify(MENU));
+      }
+      if(Array.isArray(json.stok) && json.stok.length > 0){
+        STOK = json.stok;
+        localStorage.setItem('artcity_stok', JSON.stringify(STOK));
+      }
+      if(json.masalar){
+        tables = json.masalar;
+        localStorage.setItem('artcity_tables', JSON.stringify(tables));
+        renderZones();
+        renderTables();
       }
       if(Array.isArray(json.acik)){
         let yeniAdisyonlar = {};
