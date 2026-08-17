@@ -37,7 +37,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .zone.active{background:linear-gradient(135deg,var(--amber),var(--red));border-color:transparent;color:#fff}
 
 .tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
-.table-card{position:relative;aspect-ratio:1/.82;border-radius:16px;background:var(--card);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:.15s;overflow:hidden}
+.table-card{position:relative;aspect-ratio:1/.82;border-radius:16px;background:var(--card);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:.15s;overflow:hidden;cursor:pointer}
 .table-card:active{transform:scale(.97)}
 .table-card.dolu{background:linear-gradient(150deg,#3a1a12,#2a1420);border-color:var(--red)}
 .table-card .tn{font-family:'Bebas Neue';font-size:26px;letter-spacing:.5px}
@@ -82,8 +82,8 @@ button{font-family:inherit;cursor:pointer;border:none}
 @keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
 .catalog-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
 .catalog-head .t{font-family:'Bebas Neue';font-size:22px;letter-spacing:.5px;flex:1}
-.catalog-search{padding:12px 16px}
-.catalog-search input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--cream);font-size:15px;outline:none;font-family:inherit}
+.catalog-search{padding:12px 16px;display:flex;gap:8px}
+.catalog-search input{flex:1;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--cream);font-size:15px;outline:none;font-family:inherit}
 .cat-tabs{display:flex;gap:7px;flex-wrap:wrap;padding:0 16px 10px}
 .cat-tab{flex-shrink:0;padding:7px 13px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-size:12.5px;font-weight:600;white-space:nowrap}
 .cat-tab.active{background:var(--amber);color:#3a2200;border-color:transparent}
@@ -171,8 +171,14 @@ button{font-family:inherit;cursor:pointer;border:none}
 <!-- KATALOG -->
 <div class="catalog" id="catalog">
   <div class="catalog-panel">
-    <div class="catalog-head"><span class="t">Ürün Ekle</span><button class="x" onclick="closeCatalog()">✕</button></div>
-    <div class="catalog-search"><input id="catSearch" placeholder="Ürün ara..." oninput="filterProds()"></div>
+    <div class="catalog-head">
+      <span class="t">Ürün Ekle</span>
+      <button class="btn gold" style="font-size:11px;padding:5px 9px" onclick="openManuelUrunEkle()">＋ Manuel Ürün</button>
+      <button class="x" onclick="closeCatalog()">✕</button>
+    </div>
+    <div class="catalog-search">
+      <input id="catSearch" placeholder="Ürün ara..." oninput="filterProds()">
+    </div>
     <div class="cat-tabs" id="catTabs"></div>
     <div class="catalog-items" id="catItems"></div>
   </div>
@@ -472,7 +478,11 @@ function masaModalSil(){
   toast('Masa silindi');
 }
 
-function selTable(id){ if(editMode) return; activeTable=id; renderAdisyon(); }
+function selTable(id){ 
+  if(editMode) return; 
+  activeTable = id; 
+  renderAdisyon(); 
+}
 function deselectTable(){ activeTable=null; renderAdisyon(); }
 
 function findTable(id){
@@ -554,14 +564,16 @@ function urunSil(i){
 
 function catList(){
   const s = new Set();
-  MENU.forEach(m => { if(m.Kategori && m.Fiyat && String(m.Fiyat).trim()) s.add(m.Kategori); });
+  MENU.forEach(m => { 
+    if(m.Kategori && String(m.Kategori).trim()) s.add(m.Kategori); 
+  });
+  if(s.size === 0) s.add("Tüm Ürünler");
   return [...s];
 }
 
 function openCatalog(){
-  if(!activeTable){toast('Önce masa seçin');return;}
+  if(!activeTable){ toast('Önce bir masa seçin'); return; }
   const cats = catList();
-  if(!cats.length){ toast('Menü yükleniyor...'); return; }
   catalogCat = cats[0];
   document.getElementById('catSearch').value='';
   renderCatTabs();
@@ -575,29 +587,62 @@ function renderCatTabs(){
   ).join('');
 }
 function selCatalogCat(c){catalogCat=c;document.getElementById('catSearch').value='';renderCatTabs();renderCatItems();}
+
 function renderCatItems(){
-  const q = document.getElementById('catSearch').value.toLocaleLowerCase('tr');
-  let list = MENU.filter(m => m.Fiyat && String(m.Fiyat).trim());
-  if(q) list = list.filter(m => m.Urun.toLocaleLowerCase('tr').includes(q));
-  else list = list.filter(m => m.Kategori === catalogCat);
+  const q = document.getElementById('catSearch').value.toLocaleLowerCase('tr').trim();
+  let list = MENU;
+  
+  if(q){
+    list = list.filter(m => (m.Urun || '').toLocaleLowerCase('tr').includes(q));
+  } else if(catalogCat && catalogCat !== "Tüm Ürünler"){
+    list = list.filter(m => m.Kategori === catalogCat);
+  }
 
   const container = document.getElementById('catItems');
   container.innerHTML = '';
-  if(!list.length){container.innerHTML='<div class="empty-adisyon">Ürün bulunamadı</div>';return;}
+  
+  if(!list.length){
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:30px 10px;color:var(--muted)">
+        Ürün bulunamadı.<br><br>
+        <button class="btn gold" onclick="openManuelUrunEkle()">＋ Manuel Ürün Girişi Yap</button>
+      </div>
+    `;
+    return;
+  }
+  
   list.forEach(m=>{
+    const fiyat = parseInt(m.Fiyat) || 0;
     const btn = document.createElement('button');
     btn.className = 'prod';
-    btn.onclick = () => urunEkle(m.Urun, parseInt(m.Fiyat));
-    btn.innerHTML = `<div class="pn">${m.Urun}</div><div class="pp">${money(parseInt(m.Fiyat))}</div>`;
+    btn.onclick = () => urunEkle(m.Urun, fiyat);
+    btn.innerHTML = `<div class="pn">${m.Urun}</div><div class="pp">${money(fiyat)}</div>`;
     container.appendChild(btn);
   });
 }
+
 function filterProds(){renderCatItems();}
-function urunEkle(urun,fiyat){
-  if(!adisyonlar[activeTable])adisyonlar[activeTable]=[];
+
+function urunEkle(urun, fiyat){
+  if(!activeTable){ toast('Masa seçili değil'); return; }
+  if(!adisyonlar[activeTable]) adisyonlar[activeTable] = [];
+  
   const ex = adisyonlar[activeTable].find(l => l.urun === urun && !l.ikram);
-  if(ex) ex.qty++; else adisyonlar[activeTable].push({urun,fiyat,qty:1,ikram:false});
-  localKaydet();renderAdisyon();toast(urun+' eklendi',true);
+  if(ex) ex.qty++; 
+  else adisyonlar[activeTable].push({ urun, fiyat: Number(fiyat)||0, qty: 1, ikram: false });
+  
+  localKaydet();
+  renderAdisyon();
+  toast(urun + ' eklendi', true);
+}
+
+function openManuelUrunEkle(){
+  const u = prompt('Ürün adı:');
+  if(!u) return;
+  const f = prompt('Fiyatı (₺):', '50');
+  if(f === null) return;
+  urunEkle(u.trim(), parseInt(f) || 0);
+  closeCatalog();
 }
 
 function openIkramIskonto(){if(!activeTable)return;const io=iskontolar[activeTable];document.getElementById('iskTip').value=io?io.tip:'none';document.getElementById('iskDeger').value=io?io.deger:'';document.getElementById('ikramModal').classList.add('open');}
