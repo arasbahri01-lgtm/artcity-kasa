@@ -4,108 +4,111 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Art City · Garson</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0e0c13;--panel:#16131d;--card:#1d1826;--card2:#241d30;--cream:#F7EEE2;--amber:#FF8A1E;--red:#F0341C;--green:#22c55e;--gold:#FFC93C;--line:rgba(255,220,180,.10);--muted:rgba(247,238,226,.5);}
+:root{
+  --bg:#0e0c13;--panel:#16131d;--card:#1d1826;--card2:#241d30;
+  --cream:#F7EEE2;--amber:#FF8A1E;--red:#F0341C;--green:#22c55e;
+  --gold:#FFC93C;--blue:#38bdf8;--line:rgba(255,220,180,.10);--muted:rgba(247,238,226,.5);
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--cream);min-height:100vh}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;padding-bottom:80px}
 button{font-family:inherit;cursor:pointer;border:none}
-img{display:block;max-width:100%}
-.topbar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
-.topbar .title{font-family:'Bebas Neue';font-size:20px;letter-spacing:1px}
-.topbar .who{margin-left:auto;font-size:12px;color:var(--muted);background:var(--card2);padding:5px 10px;border-radius:8px;border:1px solid var(--line);cursor:pointer;font-weight:600}
-.status{padding:6px 16px;font-size:12px;text-align:center;font-weight:600}
-.status.on{background:rgba(34,197,94,.15);color:var(--green)}
-.status.off{background:rgba(240,52,28,.15);color:var(--red)}
-main{padding:16px;max-width:700px;margin:0 auto;padding-bottom:140px}
-.step-title{font-family:'Bebas Neue';letter-spacing:1px;font-size:16px;color:var(--muted);margin:4px 0 12px;text-transform:uppercase;display:flex;align-items:center}
-.zones{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.zone{padding:10px 18px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-weight:600;font-size:14px}
+
+.header{padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:40}
+.header .title{font-family:'Bebas Neue';font-size:24px;letter-spacing:1px;color:var(--cream)}
+.header .garson-name{font-size:13px;color:var(--gold);font-weight:700;background:rgba(255,201,60,.12);padding:5px 12px;border-radius:20px;border:1px solid rgba(255,201,60,.3)}
+
+.zones{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none}
+.zone{padding:8px 16px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-size:13px;font-weight:700;white-space:nowrap}
 .zone.active{background:linear-gradient(135deg,var(--amber),var(--red));border-color:transparent;color:#fff}
-.tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
-.tcard{aspect-ratio:1/.85;border-radius:14px;background:var(--card);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:20px;color:var(--cream)}
-.tcard.active{background:linear-gradient(150deg,var(--amber),var(--red));border-color:transparent;color:#fff}
-.tcard:active{transform:scale(.96)}
 
-.cat-tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
-.cat-tab{padding:8px 13px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-size:12.5px;font-weight:600;white-space:nowrap;flex-shrink:0}
-.cat-tab.active{background:var(--amber);color:#3a2200;border-color:transparent}
-.search{margin-bottom:12px}
-.search input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--cream);font-size:15px;outline:none;font-family:inherit}
-.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px}
-.prod{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 12px;text-align:left;color:var(--cream);display:flex;flex-direction:column;min-height:84px;justify-content:space-between}
-.prod:active{transform:scale(.96);background:var(--card2)}
-.prod .pn{font-size:13.5px;font-weight:600;line-height:1.3;color:var(--cream)}
-.prod .pp{font-family:'Bebas Neue';font-size:20px;color:var(--gold);margin-top:6px}
+.tables{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px}
+.table{position:relative;aspect-ratio:1/.9;background:var(--card);border:1.5px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+.table:active{transform:scale(.97)}
+.table.dolu{background:linear-gradient(150deg,#3a1a12,#2a1420);border-color:var(--red)}
+.table .tn{font-family:'Bebas Neue';font-size:22px;letter-spacing:.5px}
+.table .ta{font-size:12px;color:var(--gold);font-weight:700}
+.table .empty{font-size:11px;color:var(--muted)}
+.table .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--green)}
+.table.dolu .dot{background:var(--red);box-shadow:0 0 6px var(--red)}
 
-/* sepet */
-.sepet{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--line);padding:12px 16px;z-index:30;max-width:700px;margin:0 auto}
-.sepet-items{max-height:130px;overflow-y:auto;margin-bottom:10px}
-.si{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
-.si .q{background:var(--card2);border-radius:7px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold);font-size:13px}
-.si .n{flex:1;font-size:13.5px}
-.si .rem{width:24px;height:24px;border-radius:6px;background:rgba(240,52,28,.15);color:var(--red);font-size:15px;display:flex;align-items:center;justify-content:center}
-.sepet-foot{display:flex;gap:10px;align-items:center}
-.sepet-foot .cnt{font-size:13px;color:var(--muted)}
-.gonder{flex:1;background:var(--green);color:#062812;font-weight:700;font-size:16px;padding:14px;border-radius:14px;text-align:center}
-.gonder:disabled{opacity:.4}
-.empty{text-align:center;color:var(--muted);padding:30px 20px;font-size:14px}
-.toast{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--cream);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:100;opacity:0;transition:.3s;border:1px solid var(--line);pointer-events:none}
-.toast.show{opacity:1}
-.toast.ok{border-color:var(--green)}
-.hidden{display:none !important}
-
-/* modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:150;display:none;align-items:center;justify-content:center;padding:20px}
+/* SİPARİŞ MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:50;display:none;align-items:flex-end}
 .modal.open{display:flex}
-.modal-box{background:var(--panel);width:100%;max-width:340px;border-radius:18px;border:1.5px solid var(--line);padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
-.modal-box input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px;color:var(--cream);font-size:16px;margin:14px 0 16px;outline:none;font-family:inherit}
-.modal-box input:focus{border-color:var(--amber)}
+.modal-box{background:var(--panel);width:100%;max-height:88vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+.modal-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-head .t{font-family:'Bebas Neue';font-size:24px}
+.modal-head .sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* MEVCUT ADİSYON DETAYI (AKORDİYON) */
+.existing-order{background:var(--card);margin:10px 16px 0;padding:10px 12px;border-radius:12px;border:1px solid var(--line);max-height:110px;overflow-y:auto}
+.existing-head{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.existing-line{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.05);color:var(--cream)}
+
+.cat-scroll{display:flex;gap:7px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
+.cat-btn{padding:7px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--cream);font-size:12px;font-weight:700;white-space:nowrap}
+.cat-btn.active{background:var(--amber);color:#1c1000;border-color:transparent}
+
+.search-box{padding:0 16px 8px}
+.search-box input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--cream);font-size:14px;outline:none;font-family:inherit}
+
+.prods{flex:1;overflow-y:auto;padding:4px 16px 14px;display:grid;grid-template-columns:repeat(2,1fr);gap:9px;max-height:38vh;align-content:start}
+.p-btn{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;min-height:78px;color:var(--cream)}
+.p-btn:active{transform:scale(.96);background:var(--card2)}
+.p-btn .pn{font-size:13px;font-weight:700;line-height:1.25}
+.p-btn .pp{font-family:'Bebas Neue';font-size:20px;color:var(--gold);margin-top:6px}
+
+.basket{background:var(--card);border-top:1px solid var(--line);padding:12px 16px}
+.basket-summary{font-size:12px;color:var(--gold);margin-bottom:8px;max-height:45px;overflow-y:auto;font-weight:600}
+.b-send{width:100%;padding:14px;border-radius:12px;background:var(--green);color:#062812;font-size:15px;font-weight:800;border:none}
+.b-send:active{transform:scale(.98)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--cream);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:100;opacity:0;transition:.3s;border:1px solid var(--green);box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <span class="title">ART CITY · GARSON</span>
-  <span class="who" id="who" onclick="garsonDegistir()">👤 Giriş Yap</span>
-</div>
-<div class="status on" id="netStatus">🟢 Bağlı</div>
 
-<main>
-  <!-- 1. Bölüm ve Masa Seçimi -->
-  <div id="masaSecim">
-    <div class="step-title">1 · Bölüm & Masa Seç</div>
-    <div class="zones" id="zones"></div>
-    <div class="tables" id="tables"></div>
-  </div>
-
-  <!-- 2. Menü & Ürün Seçimi -->
-  <div id="urunSecim" class="hidden">
-    <div class="step-title">
-      <button onclick="masayaGeriDon()" style="background:var(--card);color:var(--cream);border-radius:8px;padding:6px 12px;font-size:13px;margin-right:10px">← Masalar</button>
-      <span id="secilenMasa"></span>
-    </div>
-    <div class="search"><input id="ara" placeholder="Ürün ara..." oninput="renderProds()"></div>
-    <div class="cat-tabs" id="catTabs"></div>
-    <div class="prods" id="prods"></div>
-  </div>
-</main>
-
-<!-- Sepet Paneli -->
-<div class="sepet hidden" id="sepet">
-  <div class="sepet-items" id="sepetItems"></div>
-  <div class="sepet-foot">
-    <span class="cnt" id="sepetCnt">0 ürün</span>
-    <button class="gonder" id="gonderBtn" onclick="siparisGonder()" disabled>Siparişi Gönder</button>
-  </div>
+<div class="header">
+  <div class="title">ART CITY · GARSON</div>
+  <div class="garson-name" id="gName" onclick="garsonDegistir()">Garson ✏️</div>
 </div>
 
-<!-- Zorunlu Garson İsim Modalı -->
-<div class="modal" id="nameModal">
+<div class="zones" id="zones"></div>
+<div class="tables" id="tables"></div>
+
+<!-- SİPARİŞ VERME & ADİSYON İNCELEME MODALI -->
+<div class="modal" id="orderModal">
   <div class="modal-box">
-    <h3 style="font-family:'Bebas Neue';font-size:24px;letter-spacing:.5px">Garson Girişi</h3>
-    <p style="font-size:13.5px;color:var(--muted);margin-top:4px">Siparişlerin karışmaması için lütfen adınızı yazın:</p>
-    <input id="nameInput" placeholder="Adınız..." maxlength="20" onkeydown="if(event.key==='Enter')garsonKaydet()">
-    <button class="gonder" style="width:100%" onclick="garsonKaydet()">Giriş Yap & Başla</button>
+    <div class="modal-head">
+      <div>
+        <div class="t" id="mTitle">Masa</div>
+        <div class="sub" id="mSub">Mevcut Tutar: 0 ₺</div>
+      </div>
+      <button style="background:var(--card2);color:var(--cream);border:none;width:34px;height:34px;border-radius:10px;font-size:16px" onclick="closeOrder()">✕</button>
+    </div>
+
+    <!-- DOLU MASANIN İÇİNDEKİ SİPARİŞLER -->
+    <div class="existing-order" id="existingOrderBox" style="display:none">
+      <div class="existing-head">Masada Açık Olan Siparişler:</div>
+      <div id="existingOrderList"></div>
+    </div>
+
+    <div class="cat-scroll" id="catTabs"></div>
+    
+    <div class="search-box">
+      <input id="garsonSearch" placeholder="Ürün ara..." oninput="filterProds()">
+    </div>
+
+    <div class="prods" id="prodGrid"></div>
+
+    <div class="basket" id="basketBox" style="display:none">
+      <div class="basket-summary" id="bItems"></div>
+      <button class="b-send" onclick="siparisGonder()">Siparişi Masaya Ekle (<span id="bTotal">0 ₺</span>)</button>
+    </div>
   </div>
 </div>
 
@@ -113,262 +116,217 @@ main{padding:16px;max-width:700px;margin:0 auto;padding-bottom:140px}
 
 <script>
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6vvpguQmXhZDbSZwJU0VCFJhdQq3DoFzb2bVdT2FZtWSzCy9/exec";
-const ZONES = ["Ön", "Orta", "Arka", "Bodrum"];
 
-let MENU = JSON.parse(localStorage.getItem('artcity_menu') || '[]');
+let MENU = [];
+let tables = { "Ön":[{id:"Ön-1",name:"Masa 1"},{id:"Ön-2",name:"Masa 2"}], "Orta":[], "Arka":[], "Bodrum":[] };
+let adisyonlar = {};
+let activeZone = "Ön";
+let curTable = null;
+let activeCat = null;
+let sepet = [];
 
-let tables = {};
-[["Ön", 4], ["Orta", 6], ["Arka", 5], ["Bodrum", 3]].forEach(([z, n]) => {
-  tables[z] = [];
-  for (let i = 1; i <= n; i++) tables[z].push({ id: z + '-' + i, name: 'Masa ' + i });
-});
+let garson = localStorage.getItem('artcity_garson_adi') || 'Garson';
+document.getElementById('gName').textContent = garson + ' ✏️';
 
-let garsonAdi = localStorage.getItem('artcity_garson') || '';
-
-function initGarson() {
-  if (!garsonAdi) {
-    document.getElementById('nameModal').classList.add('open');
-    setTimeout(() => document.getElementById('nameInput').focus(), 150);
-  } else {
-    document.getElementById('who').textContent = '👤 ' + garsonAdi;
+function garsonDegistir(){
+  const n = prompt('Garson Adınız:', garson);
+  if(n && n.trim()){
+    garson = n.trim();
+    localStorage.setItem('artcity_garson_adi', garson);
+    document.getElementById('gName').textContent = garson + ' ✏️';
   }
 }
 
-function garsonDegistir() {
-  document.getElementById('nameInput').value = garsonAdi;
-  document.getElementById('nameModal').classList.add('open');
-  setTimeout(() => document.getElementById('nameInput').focus(), 150);
+function toast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m;
+  t.className='toast show';
+  setTimeout(()=>t.className='toast',2000);
 }
 
-function garsonKaydet() {
-  const val = document.getElementById('nameInput').value.trim();
-  if(!val){
-    toast('Lütfen bir isim girin');
-    return;
-  }
-  garsonAdi = val;
-  localStorage.setItem('artcity_garson', garsonAdi);
-  document.getElementById('who').textContent = '👤 ' + garsonAdi;
-  document.getElementById('nameModal').classList.remove('open');
-  toast('Hoş geldin, ' + garsonAdi, true);
-}
-
-let activeZone = "Ön", activeTableObj = null, activeCat = null, sepet = [];
-
-function toast(m, ok) {
-  const t = document.getElementById('toast');
-  t.textContent = m;
-  t.className = 'toast show' + (ok ? ' ok' : '');
-  setTimeout(() => t.className = 'toast', 2000);
-}
-
-function money(n) { return Math.round(n).toLocaleString('tr-TR') + ' ₺'; }
-
-function catList() {
-  const s = new Set();
-  MENU.forEach(m => { if (m.Kategori && m.Fiyat && String(m.Fiyat).trim()) s.add(m.Kategori); });
-  return [...s];
-}
-
-function renderZones() {
-  document.getElementById('zones').innerHTML = ZONES.map(z =>
-    `<button class="zone ${z === activeZone ? 'active' : ''}" onclick="selZone('${z}')">${z} <span style="opacity:.7">(${((tables[z]||[]).length)})</span></button>`
+function renderZones(){
+  const zKeys = Object.keys(tables);
+  if(!zKeys.includes(activeZone) && zKeys.length > 0) activeZone = zKeys[0];
+  document.getElementById('zones').innerHTML = zKeys.map(z=>
+    `<button class="zone ${z===activeZone?'active':''}" onclick="selZone('${z}')">${z}</button>`
   ).join('');
 }
+function selZone(z){ activeZone=z; renderZones(); renderTables(); }
 
-function selZone(z) { activeZone = z; renderZones(); renderTables(); }
-
-function renderTables() {
-  const tList = tables[activeZone] || [];
-  document.getElementById('tables').innerHTML = tList.map((m, idx) =>
-    `<button class="tcard" onclick="selMasa(${idx})">${m.name}</button>`
-  ).join('');
+function renderTables(){
+  const list = tables[activeZone] || [];
+  document.getElementById('tables').innerHTML = list.map(t=>{
+    const ad = adisyonlar[t.id] || [];
+    let tot = 0; ad.forEach(x=> tot += (Number(x.fiyat)||0) * (Number(x.qty)||1));
+    const dolu = ad.length > 0;
+    return `
+      <div class="table ${dolu?'dolu':''}" onclick="openTable('${t.id}')">
+        <span class="dot"></span>
+        <span class="tn">${t.name}</span>
+        ${dolu ? `<span class="ta">${tot} ₺</span>` : `<span class="empty">boş</span>`}
+      </div>
+    `;
+  }).join('');
 }
 
-function selMasa(idx) {
-  if(!garsonAdi){
-    initGarson();
-    return;
+function findTable(id){
+  for(const z in tables){
+    const f = (tables[z]||[]).find(x=>x.id===id);
+    if(f) return {...f, zone:z};
   }
-  activeTableObj = (tables[activeZone] || [])[idx];
-  if(!activeTableObj) return;
-  const cats = catList();
-  if(!cats.length){
-    toast('Menü yükleniyor...');
-    verileriGuncelle();
-    return;
-  }
-  activeCat = cats[0];
+  return { id:id, name:id, zone:activeZone };
+}
+
+function openTable(id){
+  curTable = id;
   sepet = [];
-  document.getElementById('secilenMasa').textContent = activeZone + ' · ' + activeTableObj.name;
-  document.getElementById('masaSecim').classList.add('hidden');
-  document.getElementById('urunSecim').classList.remove('hidden');
-  document.getElementById('sepet').classList.remove('hidden');
+  const t = findTable(id);
+  const ad = adisyonlar[id] || [];
+  let tot = 0; 
+  ad.forEach(x=> tot += (Number(x.fiyat)||0) * (Number(x.qty)||1));
+
+  document.getElementById('mTitle').textContent = t.zone + ' · ' + t.name;
+  document.getElementById('mSub').textContent = doluMu(id) ? 'Mevcut Tutar: ' + tot + ' ₺' : 'Masa Boş';
+  
+  // Dolu masanın sipariş detaylarını göster
+  const exBox = document.getElementById('existingOrderBox');
+  const exList = document.getElementById('existingOrderList');
+  if(ad.length > 0){
+    exBox.style.display = 'block';
+    exList.innerHTML = ad.map(l=>
+      `<div class="existing-line"><span>${l.qty}x ${l.urun}</span><b>${l.fiyat * l.qty} ₺</b></div>`
+    ).join('');
+  } else {
+    exBox.style.display = 'none';
+  }
+
+  document.getElementById('garsonSearch').value = '';
+  renderCatTabs();
+  renderProds();
+  updateBasket();
+  document.getElementById('orderModal').classList.add('open');
+}
+
+function doluMu(id){
+  return (adisyonlar[id] && adisyonlar[id].length > 0);
+}
+
+function closeOrder(){ document.getElementById('orderModal').classList.remove('open'); }
+
+function renderCatTabs(){
+  const cats = [...new Set(MENU.map(m=>m.Kategori))];
+  if(!activeCat && cats.length) activeCat = cats[0];
+  document.getElementById('catTabs').innerHTML = cats.map(c=>
+    `<button class="cat-btn ${c===activeCat?'active':''}" onclick="selCat('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join('');
+}
+function selCat(c){ 
+  activeCat=c; 
+  document.getElementById('garsonSearch').value = '';
   renderCatTabs(); 
   renderProds(); 
-  renderSepet();
 }
 
-function masayaGeriDon() {
-  if (sepet.length && !confirm('Gönderilmemiş sipariş var, çıkılsın mı?')) return;
-  activeTableObj = null;
-  sepet = [];
-  document.getElementById('urunSecim').classList.add('hidden');
-  document.getElementById('sepet').classList.add('hidden');
-  document.getElementById('masaSecim').classList.remove('hidden');
+function renderProds(){
+  const q = document.getElementById('garsonSearch').value.toLocaleLowerCase('tr').trim();
+  let list = MENU;
+
+  if(q){
+    list = list.filter(m => (m.Urun || '').toLocaleLowerCase('tr').includes(q));
+  } else if(activeCat){
+    list = list.filter(m => m.Kategori === activeCat);
+  }
+
+  document.getElementById('prodGrid').innerHTML = list.map(m=>`
+    <button class="p-btn" onclick="sepeteEkle('${m.Urun.replace(/'/g,"\\'")}', ${m.Fiyat})">
+      <span class="pn">${m.Urun}</span>
+      <span class="pp">${m.Fiyat} ₺</span>
+    </button>
+  `).join('');
 }
 
-function renderCatTabs() {
-  document.getElementById('catTabs').innerHTML = catList().map(c =>
-    `<button class="cat-tab ${c === activeCat ? 'active' : ''}" onclick="selCat('${c}')">${c}</button>`
-  ).join('');
+function filterProds(){ renderProds(); }
+
+function sepeteEkle(u, f){
+  const ex = sepet.find(x=>x.urun===u);
+  if(ex) ex.qty++; else sepet.push({ urun:u, fiyat:Number(f)||0, qty:1 });
+  updateBasket();
+  toast(u + ' eklendi');
 }
 
-function selCat(c) { activeCat = c; document.getElementById('ara').value = ''; renderProds(); }
+function updateBasket(){
+  const bBox = document.getElementById('basketBox');
+  if(!sepet.length){ bBox.style.display='none'; return; }
+  bBox.style.display = '';
+  let tot = 0;
+  document.getElementById('bItems').innerHTML = sepet.map(x=>{
+    tot += x.fiyat * x.qty;
+    return `${x.qty}x ${x.urun} (${x.fiyat*x.qty} ₺)`;
+  }).join(' · ');
+  document.getElementById('bTotal').textContent = tot + ' ₺';
+}
 
-function renderProds() {
-  const q = document.getElementById('ara').value.toLocaleLowerCase('tr');
-  let list = MENU.filter(m => m.Fiyat && String(m.Fiyat).trim());
-  if (q) list = list.filter(m => m.Urun.toLocaleLowerCase('tr').includes(q));
-  else list = list.filter(m => m.Kategori === activeCat);
-
-  const container = document.getElementById('prods');
-  container.innerHTML = '';
-  if (!list.length) { container.innerHTML = '<div class="empty">Ürün yok</div>'; return; }
-
-  list.forEach(m => {
-    const btn = document.createElement('button');
-    btn.className = 'prod';
-    btn.onclick = () => ekle(m.Urun, parseInt(m.Fiyat));
-    btn.innerHTML = `<div class="pn">${m.Urun}</div><div class="pp">${money(parseInt(m.Fiyat))}</div>`;
-    container.appendChild(btn);
+async function siparisGonder(){
+  if(!sepet.length || !curTable) return;
+  const t = findTable(curTable);
+  
+  if(!adisyonlar[curTable]) adisyonlar[curTable] = [];
+  sepet.forEach(s=>{
+    const ex = adisyonlar[curTable].find(x=>x.urun===s.urun);
+    if(ex) ex.qty += s.qty; else adisyonlar[curTable].push({...s});
   });
-}
 
-function ekle(urun, fiyat) {
-  const ex = sepet.find(s => s.urun === urun);
-  if (ex) ex.adet++; else sepet.push({ urun, fiyat, adet: 1 });
-  renderSepet();
-  toast(urun + ' eklendi', true);
-}
-
-function sepettenCikar(i) { sepet.splice(i, 1); renderSepet(); }
-
-function renderSepet() {
-  const items = document.getElementById('sepetItems');
-  if (!sepet.length) {
-    items.innerHTML = '<div class="empty" style="padding:10px">Sepet boş</div>';
-  } else {
-    items.innerHTML = sepet.map((s, i) => `
-      <div class="si">
-        <span class="q">${s.adet}</span>
-        <span class="n">${s.urun}</span>
-        <span style="color:var(--gold);font-size:13px">${money(s.fiyat * s.adet)}</span>
-        <button class="rem" onclick="sepettenCikar(${i})">✕</button>
-      </div>
-    `).join('');
-  }
-  const cnt = sepet.reduce((a, s) => a + s.adet, 0);
-  document.getElementById('sepetCnt').textContent = cnt + ' ürün · ' + money(sepet.reduce((a, s) => a + s.fiyat * s.adet, 0));
-  document.getElementById('gonderBtn').disabled = !sepet.length;
-}
-
-// Offline Kuyruk & Gönderim
-let kuyruk = JSON.parse(localStorage.getItem('artcity_garson_kuyruk') || '[]');
-function kuyrukKaydet() { localStorage.setItem('artcity_garson_kuyruk', JSON.stringify(kuyruk)); }
-
-async function siparisGonder() {
-  if (!sepet.length || !activeTableObj) return;
-  if (!garsonAdi) {
-    initGarson();
-    return;
-  }
-
-  const veri = {
+  const payload = {
     tip: 'acikSiparis',
-    masa: activeZone + ' · ' + activeTableObj.name,
-    bolum: activeZone,
-    garson: garsonAdi,
-    urunler: sepet.map(s => ({ urun: s.urun, fiyat: s.fiyat, adet: s.adet })),
-    id: Date.now() + '-' + Math.random().toString(36).slice(2, 7)
+    masa: t.zone + ' · ' + t.name,
+    garson: garson,
+    urunler: sepet.map(s=>({ urun: s.urun, fiyat: s.fiyat, adet: s.qty }))
   };
 
-  kuyruk.push(veri);
-  kuyrukKaydet();
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
 
-  const adet = sepet.reduce((a, s) => a + s.adet, 0);
-  const hedefMasa = activeZone + ' ' + activeTableObj.name;
-  sepet = [];
-  renderSepet();
-  toast('✓ ' + adet + ' ürün kasaya iletildi (' + hedefMasa + ')', true);
-  kuyrukIsle();
+  closeOrder();
+  renderTables();
+  toast('Sipariş masaya iletildi ✓');
 }
 
-let kuyrukCalisiyor = false;
-async function kuyrukIsle() {
-  if (kuyrukCalisiyor || !kuyruk.length) return;
-  kuyrukCalisiyor = true;
-  while (kuyruk.length) {
-    try {
-      await fetch(SHEETS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(kuyruk[0])
-      });
-      kuyruk.shift();
-      kuyrukKaydet();
-    } catch (e) {
-      break;
-    }
-  }
-  kuyrukCalisiyor = false;
-  guncelleNet();
-}
-
-function guncelleNet() {
-  const el = document.getElementById('netStatus');
-  if (kuyruk.length) {
-    el.className = 'status off';
-    el.textContent = '🔴 ' + kuyruk.length + ' sipariş bekliyor (internet gelince gidecek)';
-  } else {
-    el.className = 'status on';
-    el.textContent = '🟢 Bağlı — siparişler anında kasaya gidiyor';
-  }
-}
-
-async function verileriGuncelle() {
+async function senkronizeEt(){
   try {
     const res = await fetch(SHEETS_URL);
     const json = await res.json();
-    if(json && json.ok) {
-      if(Array.isArray(json.menu) && json.menu.length > 0) {
-        MENU = json.menu;
-        localStorage.setItem('artcity_menu', JSON.stringify(MENU));
-        if(!document.getElementById('urunSecim').classList.contains('hidden')){
-          renderCatTabs();
-          renderProds();
-        }
-      }
-      if(json.masalar) {
-        tables = json.masalar;
-        renderZones();
+    if(json && json.ok){
+      if(json.menu) MENU = json.menu;
+      if(json.masalar) { tables = json.masalar; renderZones(); }
+      if(Array.isArray(json.acik)){
+        let yeni = {};
+        json.acik.forEach(item=>{
+          const mName = (item.masa||'').trim();
+          let tid = null;
+          for(const z in tables){
+            const f = (tables[z]||[]).find(x=>(z+' · '+x.name).toLowerCase()===mName.toLowerCase() || x.name.toLowerCase()===mName.toLowerCase());
+            if(f){ tid = f.id; break; }
+          }
+          if(!tid) return;
+          if(!yeni[tid]) yeni[tid] = [];
+          const ex = yeni[tid].find(l=>l.urun===item.urun);
+          if(ex) ex.qty += (item.adet||1); else yeni[tid].push({ urun:item.urun, fiyat:item.fiyat||0, qty:item.adet||1 });
+        });
+        adisyonlar = yeni;
         renderTables();
       }
     }
-  } catch(e) {}
+  } catch(e){}
 }
 
-initGarson();
 renderZones();
 renderTables();
-guncelleNet();
-kuyrukIsle();
-verileriGuncelle();
-
-setInterval(kuyrukIsle, 5000);
-setInterval(verileriGuncelle, 5000);
-window.addEventListener('online', kuyrukIsle);
+senkronizeEt();
+setInterval(senkronizeEt, 3500);
 </script>
 </body>
 </html>
