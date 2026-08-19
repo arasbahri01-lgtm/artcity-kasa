@@ -400,7 +400,7 @@ function mekanikZilCal(){
 }
 
 function sesliAnons(metin){
-  mekanikZilCal(); // Önce zil çalar
+  mekanikZilCal(); // Önce ding-dong çalar
   setTimeout(() => {
     try {
       if('speechSynthesis' in window){
@@ -1231,7 +1231,7 @@ async function verileriSenkronizeEt(){
           aktifCagriMasa = sonCagri.masa;
           document.getElementById('cagriText').textContent = '🔔 ' + sonCagri.masa + ' garson çağırıyor! (' + sonCagri.zaman + ')';
           document.getElementById('cagriBanner').style.display = 'flex';
-          sesliAnons(sonCagri.masa + ' masa ile ilgilenir misiniz?');
+          sesliAnons('Masa ile ilgilenir misiniz?');
         }
       }
 
