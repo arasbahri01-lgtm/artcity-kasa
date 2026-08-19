@@ -29,8 +29,8 @@ button{font-family:inherit;cursor:pointer;border:none}
 .btn.ghost{background:transparent}
 
 /* GARSON ÇAĞRI BİLDİRİM BARI */
-.cagri-banner{background:linear-gradient(90deg,var(--amber),var(--red));color:#fff;padding:8px 16px;font-size:13px;font-weight:700;display:none;align-items:center;justify-content:space-between;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
+.cagri-banner{background:linear-gradient(90deg,var(--amber),var(--red));color:#fff;padding:10px 18px;font-size:14px;font-weight:700;display:none;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(240,52,28,.4);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.85;transform:scale(1.005)}}
 
 .wrap{display:flex;height:calc(100vh - 58px)}
 .left{flex:1;overflow-y:auto;padding:16px}
@@ -130,11 +130,11 @@ button{font-family:inherit;cursor:pointer;border:none}
 .toast.ok{border-color:var(--green)}
 </style>
 </head>
-<body>
+<body onclick="sesMotorunuBaslat()">
 
 <div class="cagri-banner" id="cagriBanner">
   <span id="cagriText">🔔 Garson Çağrısı!</span>
-  <button class="btn" style="padding:4px 10px;font-size:11px" onclick="cagriyiKapat()">Tamam (Kapat)</button>
+  <button class="btn" style="padding:5px 12px;font-size:12px;background:#fff;color:#000;font-weight:700" onclick="cagriyiKapat()">Tamam (Kapat)</button>
 </div>
 
 <div class="topbar">
@@ -348,21 +348,71 @@ let editMode = false;
 let payMode = 'tam';
 let parcaliSecim = {};
 let aktifCagriMasa = null;
+let audioCtx = null;
 
 function money(n){return Math.round(n).toLocaleString('tr-TR')+' ₺';}
 function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(ok?' ok':'');setTimeout(()=>t.className='toast',2200);}
 function clock(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleDateString('tr-TR')+' · '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
 setInterval(clock,1000);clock();
 
-function sesliAnons(metin){
+// ========== ÇİFT GÜVENCELİ SES MOTORU ==========
+function sesMotorunuBaslat(){
   try {
-    if('speechSynthesis' in window){
-      const u = new SpeechSynthesisUtterance(metin);
-      u.lang = 'tr-TR';
-      u.rate = 1.0;
-      window.speechSynthesis.speak(u);
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx && audioCtx.state === 'suspended'){
+      audioCtx.resume();
     }
   } catch(e){}
+}
+
+function mekanikZilCal(){
+  try {
+    sesMotorunuBaslat();
+    if(!audioCtx) return;
+    const now = audioCtx.currentTime;
+    
+    // 1. Ton (Yüksek Ding)
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, now);
+    gain1.gain.setValueAtTime(0.4, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.5);
+
+    // 2. Ton (Dong)
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(659, now + 0.2);
+    gain2.gain.setValueAtTime(0.4, now + 0.2);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.2);
+    osc2.stop(now + 0.9);
+  } catch(e){}
+}
+
+function sesliAnons(metin){
+  mekanikZilCal(); // Önce zil çalar
+  setTimeout(() => {
+    try {
+      if('speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(metin);
+        u.lang = 'tr-TR';
+        u.rate = 0.95;
+        u.volume = 1.0;
+        window.speechSynthesis.speak(u);
+      }
+    } catch(e){}
+  }, 400);
 }
 
 function renderZones(){
@@ -571,7 +621,7 @@ function urunSil(i){
   setTimeout(() => { silmeKilitli = false; }, 3500);
 }
 
-// ========== MASA TAŞIMA / AKTARMA ==========
+// ========== MASA TAŞIMA ==========
 function openMasaTasi(){
   if(!activeTable) return;
   const t = findTable(activeTable);
@@ -619,7 +669,7 @@ function masaTasiOnayla(){
   toast(srcTable.name + ' ➔ ' + dstTable.name + ' masasına taşındı ✓', true);
 }
 
-// ========== KATALOG & SİPARİŞ ==========
+// ========== KATALOG ==========
 function catList(){
   const s = new Set();
   MENU.forEach(m => { 
@@ -716,7 +766,7 @@ function openManuelUrunEkle(){
   closeCatalog();
 }
 
-// ========== PARÇALI & TAM ÖDEME ALMA ==========
+// ========== ÖDEME ==========
 function openOdeme(){
   if(!activeTable) return;
   const {toplam} = hesapToplam(activeTable);
@@ -856,7 +906,6 @@ function tahsilatYap(yontem){
     toast('Masa hesabı kapatıldı ✓', true);
 
   } else {
-    // Parçalı Ödeme Modu
     let odenenler = [];
     let tot = 0;
     adList.forEach((item, idx)=>{
@@ -914,7 +963,6 @@ function tahsilatYap(yontem){
       });
     }
 
-    // Sıfırlananları masadan temizle
     adisyonlar[activeTable] = adList.filter(x=>x.qty > 0);
     if(!adisyonlar[activeTable].length) delete adisyonlar[activeTable];
 
