@@ -15,11 +15,11 @@
 body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--cream);height:100vh;overflow:hidden}
 button{font-family:inherit;cursor:pointer;border:none}
 
-.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
 .topbar .title{font-family:'Bebas Neue';font-size:22px;letter-spacing:1px;color:var(--cream)}
 .topbar .spacer{flex:1}
 .topbar .clock{font-size:13px;color:var(--muted)}
-.btn{padding:8px 13px;border-radius:10px;font-weight:600;font-size:13px;background:var(--card2);color:var(--cream);border:1px solid var(--line);transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn{padding:8px 12px;border-radius:10px;font-weight:600;font-size:13px;background:var(--card2);color:var(--cream);border:1px solid var(--line);transition:.15s;display:inline-flex;align-items:center;gap:6px}
 .btn:active{transform:scale(.97)}
 .btn.green{background:var(--green);color:#062812;border:none}
 .btn.red{background:var(--red);color:#fff;border:none}
@@ -57,9 +57,14 @@ button{font-family:inherit;cursor:pointer;border:none}
 .ebtn.del{background:var(--red)}
 .table-add{border:1.5px dashed var(--line);background:transparent;color:var(--muted);font-size:30px;display:flex;align-items:center;justify-content:center;min-height:98px}
 
-.adisyon-head{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+/* ADİSYON ÜST BAŞLIK & İKON BUTONLAR (Madde 2) */
+.adisyon-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .adisyon-head .m{font-family:'Bebas Neue';font-size:24px;letter-spacing:.5px}
 .adisyon-head .z{font-size:12px;color:var(--muted)}
+.head-actions{display:flex;gap:6px;align-items:center}
+.icon-btn{background:var(--card2);border:1px solid var(--line);color:var(--cream);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700}
+.icon-btn:hover{border-color:var(--gold)}
+
 .adisyon-items{flex:1;overflow-y:auto;padding:8px 12px}
 .empty-adisyon{text-align:center;color:var(--muted);padding:50px 20px;font-size:14px}
 .line{display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;background:var(--card);margin-bottom:7px;position:relative}
@@ -72,7 +77,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .line .del{width:26px;height:26px;border-radius:7px;background:rgba(240,52,28,.15);color:var(--red);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 .adisyon-foot{border-top:1px solid var(--line);padding:14px 16px;background:var(--card)}
-.sumrow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:5px}
+.sumrow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
 .sumrow.total{font-size:20px;color:var(--cream);font-weight:700;margin:8px 0 12px;font-family:'Bebas Neue';letter-spacing:.5px}
 .sumrow.total b{color:var(--gold);font-size:26px}
 .foot-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -112,19 +117,17 @@ button{font-family:inherit;cursor:pointer;border:none}
 .field input,.field select{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--cream);font-size:15px;outline:none;font-family:inherit}
 
 .parcali-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
-
 .history-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .history-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .history-actions{display:flex;gap:8px;margin-top:8px}
 .history-actions .btn{flex:1;padding:6px;font-size:12px;justify-content:center}
 
-.report-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.report-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .report-row .rl{color:var(--muted)}
 .report-row .rv{font-weight:600}
-.report-row.big{font-size:18px;padding:14px 0}
-.report-row.big .rv{color:var(--gold);font-family:'Bebas Neue';font-size:24px}
+.report-row.big{font-size:16px;padding:12px 0}
+.report-row.big .rv{color:var(--gold);font-family:'Bebas Neue';font-size:22px}
 
-/* STOK TABLOSU */
 .stok-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
 .stok-table th{text-align:left;padding:8px;border-bottom:1.5px solid var(--line);color:var(--gold);font-weight:700}
 .stok-table td{padding:9px 8px;border-bottom:1px solid var(--line)}
@@ -145,10 +148,11 @@ button{font-family:inherit;cursor:pointer;border:none}
   <span class="title">ART CITY · KASA</span>
   <span class="spacer"></span>
   <span class="clock" id="clock"></span>
+  <button class="btn" onclick="openKasaDevirModal()">💵 Açılış Kasası (<span id="topDevirKasa">0 ₺</span>)</button>
   <button class="btn blue" onclick="openStokGiris()">📦 Stok Yönetimi</button>
   <button class="btn ghost" onclick="openGecmis()">📜 Geçmiş</button>
   <button class="btn ghost" onclick="openGider()">＋ Gider</button>
-  <button class="btn purple" onclick="openVeresiyeList()">📕 Veresiye Defteri</button>
+  <button class="btn purple" onclick="openVeresiyeList()">📕 Veresiye</button>
   <button class="btn gold" onclick="openGunSonu()">Gün Sonu</button>
 </div>
 
@@ -161,19 +165,29 @@ button{font-family:inherit;cursor:pointer;border:none}
     <div class="tables" id="tables"></div>
   </div>
   <div class="right">
+    <!-- MADDE 2: BAŞLIK YANINA İKON BUTONLAR -->
     <div class="adisyon-head">
-      <div><div class="m" id="adMasa">Masa seçin</div><div class="z" id="adZone"></div></div>
-      <button class="btn ghost" id="closeAdBtn" onclick="deselectTable()" style="display:none">✕</button>
+      <div>
+        <div class="m" id="adMasa">Masa seçin</div>
+        <div class="z" id="adZone"></div>
+      </div>
+      <div class="head-actions" id="adHeadActions" style="display:none">
+        <button class="icon-btn" onclick="openMasaTasi()" title="Masayı Taşı">🔀 Taşı</button>
+        <button class="icon-btn" onclick="openIskontoModal()" title="İskonto / İndirim">🎁 İndirim</button>
+        <button class="btn ghost" onclick="deselectTable()" style="padding:4px 8px">✕</button>
+      </div>
     </div>
+    
     <div class="adisyon-items" id="adItems">
       <div class="empty-adisyon">Soldan bir masa seçin,<br>sonra ürün ekleyin.</div>
     </div>
+    
     <div class="adisyon-foot" id="adFoot" style="display:none">
       <div class="sumrow"><span>Ara Toplam</span><span id="araToplam">0 ₺</span></div>
+      <div class="sumrow" id="iskontoRow" style="display:none"><span>İskonto</span><span id="iskontoTutar" style="color:var(--green)">-0 ₺</span></div>
       <div class="sumrow total"><span>TOPLAM</span><b id="genelToplam">0 ₺</b></div>
       <div class="foot-btns">
-        <button class="btn" onclick="openCatalog()">＋ Ürün Ekle</button>
-        <button class="btn gold" onclick="openMasaTasi()">🔀 Masa Taşı</button>
+        <button class="btn gold" onclick="openCatalog()">＋ Ürün Ekle</button>
         <button class="btn green pay" onclick="openOdeme()">💰 Ödeme Al / Hesap Kapat</button>
       </div>
     </div>
@@ -216,7 +230,42 @@ button{font-family:inherit;cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- MASA EKLE/DÜZENLE MODAL -->
+<!-- İNDİRİM / İSKONTO MODAL -->
+<div class="modal" id="iskontoModal">
+  <div class="modal-panel" style="max-width:380px">
+    <div class="modal-head"><span class="t">🎁 İskonto / İndirim Uygula</span><button class="x" onclick="closeModal('iskontoModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field">
+        <label>İndirim Tutarı (₺)</label>
+        <input type="number" id="iskontoInput" placeholder="Örn: 50">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal('iskontoModal')">Vazgeç</button>
+      <button class="btn green" onclick="iskontoKaydet()">Uygula</button>
+    </div>
+  </div>
+</div>
+
+<!-- MADDE 4: AÇILIŞ KASASI / DEVİR MODAL -->
+<div class="modal" id="kasaDevirModal">
+  <div class="modal-panel" style="max-width:380px">
+    <div class="modal-head"><span class="t">💵 Kasa Açılış / Bozuk Para Devri</span><button class="x" onclick="closeModal('kasaDevirModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Sabah çekmecede bulunan nakit tutarı girin:</div>
+      <div class="field">
+        <label>Açılış Nakit Tutarı (₺)</label>
+        <input type="number" id="acilisNakitInput" placeholder="Örn: 1000">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal('kasaDevirModal')">Kapat</button>
+      <button class="btn green" onclick="acilisNakitKaydet()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- MASA DÜZENLE MODAL -->
 <div class="modal" id="masaModal">
   <div class="modal-panel">
     <div class="modal-head"><span class="t" id="masaModalTitle">Masa</span><button class="x" onclick="closeModal('masaModal')">✕</button></div>
@@ -326,10 +375,10 @@ button{font-family:inherit;cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- GÜN SONU MODAL -->
+<!-- MADDE 4 ENTEGRASYONLU GÜN SONU MODALI -->
 <div class="modal" id="gunSonuModal">
   <div class="modal-panel">
-    <div class="modal-head"><span class="t">Gün Sonu Raporu</span><button class="x" onclick="closeModal('gunSonuModal')">✕</button></div>
+    <div class="modal-head"><span class="t">Gün Sonu & Kasa Kapanış</span><button class="x" onclick="closeModal('gunSonuModal')">✕</button></div>
     <div class="modal-body" id="gunSonuBody"></div>
     <div class="modal-foot">
       <button class="btn ghost" onclick="closeModal('gunSonuModal')">Kapat</button>
@@ -347,6 +396,8 @@ let MENU = [];
 let STOK = JSON.parse(localStorage.getItem('artcity_stok_cache') || '[]');
 let VERESIYELER = {};
 let BUGUN_SATISLAR = JSON.parse(localStorage.getItem('artcity_bugunsatislar') || '[]');
+let iskontolar = JSON.parse(localStorage.getItem('artcity_iskontolar') || '{}');
+let acilisKasasi = Number(localStorage.getItem('artcity_acilis_kasa') || 0);
 
 const ZONES = ["Ön","Orta","Arka","Bodrum"];
 let defaultTables = {};
@@ -385,6 +436,23 @@ function adisyonDirty(){ return Date.now() < localAdisyonDirtyUntil; }
 function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(ok?' ok':'');setTimeout(()=>t.className='toast',2200);}
 function clock(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleDateString('tr-TR')+' · '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
 setInterval(clock,1000);clock();
+
+function updateTopDevirUI(){
+  document.getElementById('topDevirKasa').textContent = money(acilisKasasi);
+}
+updateTopDevirUI();
+
+function openKasaDevirModal(){
+  document.getElementById('acilisNakitInput').value = acilisKasasi || '';
+  document.getElementById('kasaDevirModal').classList.add('open');
+}
+function acilisNakitKaydet(){
+  acilisKasasi = Math.max(0, Number(document.getElementById('acilisNakitInput').value) || 0);
+  localStorage.setItem('artcity_acilis_kasa', acilisKasasi);
+  updateTopDevirUI();
+  closeModal('kasaDevirModal');
+  toast('Açılış kasası güncellendi: ' + money(acilisKasasi), true);
+}
 
 function bugunTarihTR(){
   const d = new Date();
@@ -592,22 +660,24 @@ function hesapToplam(id){
   const ad = adisyonlar[id] || [];
   let ara = 0;
   ad.forEach(l => { ara += l.fiyat * l.qty; });
-  return { ara, toplam: ara };
+  const isk = Number(iskontolar[id] || 0);
+  const net = Math.max(0, ara - isk);
+  return { ara, iskonto: isk, toplam: net };
 }
 
 function renderAdisyon(){
   const head = document.getElementById('adMasa'), z = document.getElementById('adZone');
   const foot = document.getElementById('adFoot'), items = document.getElementById('adItems');
-  const closeBtn = document.getElementById('closeAdBtn');
+  const headActions = document.getElementById('adHeadActions');
   
   if(!activeTable){
-    head.textContent='Masa seçin'; z.textContent=''; foot.style.display='none'; closeBtn.style.display='none';
+    head.textContent='Masa seçin'; z.textContent=''; foot.style.display='none'; headActions.style.display='none';
     items.innerHTML='<div class="empty-adisyon">Soldan bir masa seçin,<br>sonra ürün ekleyin.</div>';
     return;
   }
   
   const t = findTable(activeTable);
-  head.textContent = t.name; z.textContent = t.zone + ' bölümü'; closeBtn.style.display = '';
+  head.textContent = t.name; z.textContent = t.zone + ' bölümü'; headActions.style.display = 'flex';
   const ad = adisyonlar[activeTable] || [];
   
   if(!ad.length){
@@ -631,14 +701,37 @@ function renderAdisyon(){
     }).join('');
   }
   
-  const { ara, toplam } = hesapToplam(activeTable);
+  const { ara, iskonto, toplam } = hesapToplam(activeTable);
   document.getElementById('araToplam').textContent = money(ara);
   document.getElementById('genelToplam').textContent = money(toplam);
+  
+  const iskRow = document.getElementById('iskontoRow');
+  if(iskonto > 0){
+    iskRow.style.display = 'flex';
+    document.getElementById('iskontoTutar').textContent = '-' + money(iskonto);
+  } else {
+    iskRow.style.display = 'none';
+  }
+
   foot.style.display = '';
   renderTables();
 }
 
-// ========== ADİSYONDAN ÜRÜN SİLME & STOK İADESİ ==========
+function openIskontoModal(){
+  if(!activeTable) return;
+  document.getElementById('iskontoInput').value = iskontolar[activeTable] || '';
+  document.getElementById('iskontoModal').classList.add('open');
+}
+function iskontoKaydet(){
+  const isk = Math.max(0, Number(document.getElementById('iskontoInput').value) || 0);
+  if(isk > 0) iskontolar[activeTable] = isk;
+  else delete iskontolar[activeTable];
+  localStorage.setItem('artcity_iskontolar', JSON.stringify(iskontolar));
+  closeModal('iskontoModal');
+  renderAdisyon();
+  toast('İndirim uygulandı: ' + money(isk), true);
+}
+
 function urunSil(i){
   if(!activeTable || !adisyonlar[activeTable]) return;
   markAdisyonDirty();
@@ -653,10 +746,13 @@ function urunSil(i){
     adisyonlar[activeTable].splice(i, 1);
   }
   
-  // Yerel stoğa anında +1 iade et
   stokIade([{ urun: silinen.urun, qty: 1 }]);
 
-  if(!adisyonlar[activeTable].length) delete adisyonlar[activeTable];
+  if(!adisyonlar[activeTable].length){
+    delete adisyonlar[activeTable];
+    delete iskontolar[activeTable];
+    localStorage.setItem('artcity_iskontolar', JSON.stringify(iskontolar));
+  }
   renderAdisyon();
   
   sheetsGonder({
@@ -669,7 +765,6 @@ function urunSil(i){
   setTimeout(() => { silmeKilitli = false; }, 3500);
 }
 
-// ========== MASA TAŞIMA ==========
 function openMasaTasi(){
   if(!activeTable) return;
   const t = findTable(activeTable);
@@ -705,6 +800,12 @@ function masaTasiOnayla(){
     if(ex) ex.qty += item.qty; else adisyonlar[hedefId].push({...item});
   });
 
+  if(iskontolar[activeTable]){
+    iskontolar[hedefId] = (iskontolar[hedefId] || 0) + iskontolar[activeTable];
+    delete iskontolar[activeTable];
+    localStorage.setItem('artcity_iskontolar', JSON.stringify(iskontolar));
+  }
+
   sheetsGonder({
     tip: 'masaTasi',
     kaynakMasa: srcTable.zone + ' · ' + srcTable.name,
@@ -718,7 +819,6 @@ function masaTasiOnayla(){
   toast(srcTable.name + ' ➔ ' + dstTable.name + ' masasına taşındı ✓', true);
 }
 
-// ========== KATALOG ==========
 function catList(){
   const s = new Set();
   MENU.forEach(m => { 
@@ -842,7 +942,6 @@ function stokIade(urunler){
   if(changed) localStorage.setItem('artcity_stok_cache', JSON.stringify(STOK));
 }
 
-// ========== ÖDEME VE SATIŞ KAYDI ==========
 function openOdeme(){
   if(!activeTable) return;
   const {toplam} = hesapToplam(activeTable);
@@ -933,7 +1032,7 @@ function tahsilatYap(yontem){
   const adList = adisyonlar[activeTable] || [];
 
   if(payMode === 'tam'){
-    const {ara, toplam} = hesapToplam(activeTable);
+    const {ara, iskonto, toplam} = hesapToplam(activeTable);
     const urunlerStr = adList.map(l=>l.qty+'x '+l.urun).join(', ');
 
     const o = {nakit:0, kart:0, iban:0, veresiye:0};
@@ -956,7 +1055,7 @@ function tahsilatYap(yontem){
 
     const yeniSatis = {
       tarih: tarih, saat: saat, tur: 'Satış', zone: t.zone, masa: t.name, detay: urunlerStr,
-      araToplam: ara, ikram: 0, iskonto: 0, toplam: toplam,
+      araToplam: ara, ikram: 0, iskonto: iskonto, toplam: toplam,
       nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye,
       urunlerDizi: JSON.parse(JSON.stringify(adList))
     };
@@ -967,7 +1066,7 @@ function tahsilatYap(yontem){
     sheetsGonder({
       tip: 'satis', isGunu: tarih, tarih: tarih, saat: saat,
       bolum: t.zone, masa: t.name, detay: urunlerStr,
-      araToplam: ara, ikram: 0, iskonto: 0, netToplam: toplam,
+      araToplam: ara, ikram: 0, iskonto: iskonto, netToplam: toplam,
       nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye, kasiyer: 'Kasa'
     });
 
@@ -986,6 +1085,9 @@ function tahsilatYap(yontem){
     stokDus(adList);
     markAdisyonDirty();
     delete adisyonlar[activeTable];
+    delete iskontolar[activeTable];
+    localStorage.setItem('artcity_iskontolar', JSON.stringify(iskontolar));
+
     closeModal('odemeModal');
     document.getElementById('tamVeresiyeField').style.display='none';
     document.getElementById('tamVeresiyeName').value='';
@@ -1065,7 +1167,11 @@ function tahsilatYap(yontem){
     stokDus(odenenler);
 
     adisyonlar[activeTable] = adList.filter(x=>x.qty > 0);
-    if(!adisyonlar[activeTable].length) delete adisyonlar[activeTable];
+    if(!adisyonlar[activeTable].length){
+      delete adisyonlar[activeTable];
+      delete iskontolar[activeTable];
+      localStorage.setItem('artcity_iskontolar', JSON.stringify(iskontolar));
+    }
 
     closeModal('odemeModal');
     document.getElementById('tamVeresiyeField').style.display='none';
@@ -1075,7 +1181,6 @@ function tahsilatYap(yontem){
   }
 }
 
-// ========== STOK YÖNETİMİ ==========
 function openStokGiris(){
   setStokTab('liste');
   document.getElementById('stokModal').classList.add('open');
@@ -1180,7 +1285,6 @@ function stokGirisKaydet(){
   toast(urun + ' stoğu güncellendi (+'+adet+')', true);
 }
 
-// ========== ADİSYON GEÇMİŞİ & İPTALDE STOK İADESİ ==========
 function openGecmis(){
   const body = document.getElementById('gecmisBody');
   const satislar = BUGUN_SATISLAR.filter(x=>x.tur === 'Satış');
@@ -1210,7 +1314,6 @@ function gecmisKayitSil(idx){
   if(!confirm('Bu satışı iptal edip silmek ve ürünleri stoğa geri yüklemek istediğinize emin misiniz?')) return;
   const kayit = BUGUN_SATISLAR[idx];
   
-  // Yerel stoğa toplu iade yap
   if(kayit.urunlerDizi && kayit.urunlerDizi.length > 0){
     stokIade(kayit.urunlerDizi);
   }
@@ -1229,7 +1332,7 @@ function gecmisKayitSil(idx){
   toast('Satış iptal edildi ve stoklar geri yüklendi ✓', true);
 }
 
-// ========== GÜN SONU KONTROLÜ ==========
+// ========== MADDE 4 ENTEGRASYONLU GÜN SONU HESAPLAMA ==========
 function openGunSonu(){
   const acikMasaIsimleri = [];
   for(const id in adisyonlar){
@@ -1239,7 +1342,7 @@ function openGunSonu(){
     }
   }
 
-  let nakit = 0, kart = 0, iban = 0, veresiye = 0, ciro = 0, giderToplam = 0;
+  let nakit = 0, kart = 0, iban = 0, veresiye = 0, ciro = 0, nakitGider = 0, kartGider = 0, ibanGider = 0, toplamGider = 0;
   
   BUGUN_SATISLAR.forEach(s => {
     if(s.tur === 'Satış'){
@@ -1249,11 +1352,16 @@ function openGunSonu(){
       veresiye += (Number(s.veresiye) || 0);
       ciro += (Number(s.toplam) || 0);
     } else if(s.tur === 'Gider'){
-      giderToplam += Math.abs(Number(s.toplam) || 0);
+      const tutar = Math.abs(Number(s.toplam) || 0);
+      toplamGider += tutar;
+      if(s.nakit) nakitGider += tutar;
+      if(s.kart) kartGider += tutar;
+      if(s.iban) ibanGider += tutar;
     }
   });
 
-  const netKasa = (nakit + kart + iban) - giderToplam;
+  const netCiro = ciro - toplamGider;
+  const olmasiGerekenNakit = acilisKasasi + nakit - nakitGider;
 
   let uyariHtml = '';
   const onayBtn = document.getElementById('gunSonuOnayBtn');
@@ -1280,15 +1388,19 @@ function openGunSonu(){
     <div class="report-row"><span class="rl">💳 Kart Satış</span><span class="rv">${money(kart)}</span></div>
     <div class="report-row"><span class="rl">🏦 IBAN Satış</span><span class="rv">${money(iban)}</span></div>
     <div class="report-row"><span class="rl">📕 Veresiye Satış</span><span class="rv">${money(veresiye)}</span></div>
-    <div class="report-row"><span class="rl">🧾 Günlük Giderler</span><span class="rv" style="color:var(--red)">-${money(giderToplam)}</span></div>
-    <div class="report-row big"><span class="rl">Net Tahsilat (Giderler Sonrası)</span><span class="rv" style="color:var(--green)">${money(netKasa)}</span></div>
+    <div class="report-row"><span class="rl">🧾 Günlük Toplam Gider</span><span class="rv" style="color:var(--red)">-${money(toplamGider)}</span></div>
+    <div class="report-row"><span class="rl">📥 Sabah Kasa Açılış (Devir)</span><span class="rv">${money(acilisKasasi)}</span></div>
+    <div class="report-row big" style="background:rgba(34,197,94,.1);padding:10px 12px;border-radius:10px;margin-top:8px">
+      <span class="rl" style="color:var(--cream);font-weight:700">💰 Çekmecede Olması Gereken Nakit</span>
+      <span class="rv" style="color:var(--green);font-size:24px">${money(olmasiGerekenNakit)}</span>
+    </div>
   `;
   document.getElementById('gunSonuBody').innerHTML = h;
   document.getElementById('gunSonuModal').classList.add('open');
 }
 
 function gunSonuKaydet(){
-  let nakit = 0, kart = 0, iban = 0, veresiye = 0, ciro = 0, giderToplam = 0;
+  let nakit = 0, kart = 0, iban = 0, veresiye = 0, ciro = 0, toplamGider = 0;
   
   BUGUN_SATISLAR.forEach(s => {
     if(s.tur === 'Satış'){
@@ -1298,12 +1410,12 @@ function gunSonuKaydet(){
       veresiye += (Number(s.veresiye) || 0);
       ciro += (Number(s.toplam) || 0);
     } else if(s.tur === 'Gider'){
-      giderToplam += Math.abs(Number(s.toplam) || 0);
+      toplamGider += Math.abs(Number(s.toplam) || 0);
     }
   });
 
   const now = new Date();
-  const netKasa = (nakit + kart + iban) - giderToplam;
+  const netKasa = (nakit + kart + iban) - toplamGider;
   const tarih = bugunTarihTR();
 
   sheetsGonder({
@@ -1313,7 +1425,7 @@ function gunSonuKaydet(){
     saat: now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}),
     bolum: '', 
     masa: 'GÜN SONU RAPORU', 
-    detay: BUGUN_SATISLAR.length + ' adet işlem kapatıldı',
+    detay: BUGUN_SATISLAR.length + ' adet işlem kapatıldı (Açılış: ' + acilisKasasi + ' TL)',
     araToplam: ciro, 
     ikram: 0, 
     iskonto: 0, 
@@ -1326,7 +1438,10 @@ function gunSonuKaydet(){
   });
 
   BUGUN_SATISLAR = [];
+  acilisKasasi = 0;
   localStorage.removeItem('artcity_bugunsatislar');
+  localStorage.removeItem('artcity_acilis_kasa');
+  updateTopDevirUI();
   closeModal('gunSonuModal');
   toast('Gün sonu Google Sheets’e kaydedildi ✓', true);
 }
@@ -1362,7 +1477,6 @@ function giderEkle(){
   toast('Gider kaydedildi: ' + money(t), true);
 }
 
-// ========== VERESİYE DEFTERİ ==========
 function openVeresiyeList(){
   const isimler = Object.keys(VERESIYELER);
   let h = '';
@@ -1419,7 +1533,6 @@ function veresiyeOde(isim, bakiye){
   setTimeout(verileriSenkronizeEt, 1000);
 }
 
-// ========== GARSON ÇAĞRISI KAPATMA ==========
 function cagriyiKapat(){
   if(!aktifCagriMasa) return;
   sheetsGonder({ tip: 'cagriKapat', masa: aktifCagriMasa, cagriKey: aktifCagriKeyValue });
@@ -1432,7 +1545,6 @@ function cagriyiKapat(){
 
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-// ========== ANLIK GOOGLE SHEETS İLETİŞİMİ ==========
 let kuyruk = JSON.parse(localStorage.getItem('artcity_kuyruk')||'[]');
 function kuyrukKaydet(){localStorage.setItem('artcity_kuyruk',JSON.stringify(kuyruk));}
 async function sheetsGonder(veri){ kuyruk.push(veri); kuyrukKaydet(); kuyrukIsle(); }
@@ -1469,7 +1581,6 @@ async function verileriSenkronizeEt(){
       
       if(json.masalar) { tables = json.masalar; renderZones(); }
 
-      // Garson Çağrısı Kontrolü
       if(Array.isArray(json.cagrilar) && json.cagrilar.length > 0){
         const sonCagri = json.cagrilar[json.cagrilar.length - 1];
         const cagriKey = String(sonCagri.id ?? ((sonCagri.masa||'') + '|' + (sonCagri.zaman||sonCagri.tarih||'')));
