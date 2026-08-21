@@ -100,7 +100,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
 .modal.open{display:flex}
-.modal-panel{background:var(--panel);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;border-radius:18px;border:1px solid var(--line)}
+.modal-panel{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border-radius:18px;border:1px solid var(--line)}
 .modal-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .modal-head .t{font-family:'Bebas Neue';font-size:22px;letter-spacing:.5px}
 .modal-body{padding:16px 18px}
@@ -234,7 +234,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- STOK YÖNETİMİ & LİSTE MODALI -->
 <div class="modal" id="stokModal">
-  <div class="modal-panel" style="max-width:560px">
+  <div class="modal-panel">
     <div class="modal-head">
       <span class="t">📦 Stok Takibi & Girişi</span>
       <button class="x" onclick="closeModal('stokModal')">✕</button>
@@ -299,7 +299,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- ADİSYON GEÇMİŞİ MODAL -->
 <div class="modal" id="gecmisModal">
-  <div class="modal-panel" style="max-width:520px">
+  <div class="modal-panel">
     <div class="modal-head"><span class="t">📜 Bugün Kapatılan Adisyonlar</span><button class="x" onclick="closeModal('gecmisModal')">✕</button></div>
     <div class="modal-body" id="gecmisBody"></div>
   </div>
@@ -323,7 +323,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- VERESİYE DEFTERİ -->
 <div class="modal" id="veresiyeModal">
-  <div class="modal-panel" style="max-width:560px">
+  <div class="modal-panel">
     <div class="modal-head"><span class="t">📕 Veresiye Defteri</span><button class="x" onclick="closeModal('veresiyeModal')">✕</button></div>
     <div class="modal-body" id="veresiyeBody"></div>
   </div>
@@ -349,7 +349,7 @@ const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6
 let MENU = [];
 let STOK = [];
 let VERESIYELER = {};
-let BUGUN_SATISLAR = [];
+let BUGUN_SATISLAR = JSON.parse(localStorage.getItem('artcity_bugunsatislar') || '[]');
 
 const ZONES = ["Ön","Orta","Arka","Bodrum"];
 let defaultTables = {};
@@ -375,6 +375,14 @@ function money(n){return Math.round(n).toLocaleString('tr-TR')+' ₺';}
 function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(ok?' ok':'');setTimeout(()=>t.className='toast',2200);}
 function clock(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleDateString('tr-TR')+' · '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
 setInterval(clock,1000);clock();
+
+function bugunTarihTR(){
+  const d = new Date();
+  const gun = ("0" + d.getDate()).slice(-2);
+  const ay = ("0" + (d.getMonth() + 1)).slice(-2);
+  const yil = d.getFullYear();
+  return gun + "." + ay + "." + yil;
+}
 
 function sesMotorunuBaslat(){
   try {
@@ -779,7 +787,7 @@ function openManuelUrunEkle(){
   closeCatalog();
 }
 
-// ========== ÖDEME ==========
+// ========== ÖDEME VE SATIŞ KAYDI ==========
 function openOdeme(){
   if(!activeTable) return;
   const {toplam} = hesapToplam(activeTable);
@@ -862,7 +870,7 @@ function tahsilatYap(yontem){
   const t = findTable(activeTable);
   const now = new Date();
   const saat = now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-  const tarih = now.toLocaleDateString('tr-TR');
+  const tarih = bugunTarihTR();
   const adList = adisyonlar[activeTable] || [];
 
   if(payMode === 'tam'){
@@ -887,11 +895,14 @@ function tahsilatYap(yontem){
       o.vname = isim;
     }
 
-    BUGUN_SATISLAR.push({
+    const yeniSatis = {
       tarih: tarih, saat: saat, tur: 'Satış', zone: t.zone, masa: t.name, detay: urunlerStr,
       araToplam: ara, ikram: 0, iskonto: 0, toplam: toplam,
       nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye
-    });
+    };
+
+    BUGUN_SATISLAR.push(yeniSatis);
+    localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
 
     sheetsGonder({
       tip: 'satis', isGunu: tarih, tarih: tarih, saat: saat,
@@ -951,11 +962,14 @@ function tahsilatYap(yontem){
       o.vname = isim;
     }
 
-    BUGUN_SATISLAR.push({
+    const yeniSatis = {
       tarih: tarih, saat: saat, tur: 'Satış', zone: t.zone, masa: t.name + ' (Kısmi)', detay: urunlerStr,
       araToplam: tot, ikram: 0, iskonto: 0, toplam: tot,
       nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye
-    });
+    };
+
+    BUGUN_SATISLAR.push(yeniSatis);
+    localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
 
     sheetsGonder({
       tip: 'satis', isGunu: tarih, tarih: tarih, saat: saat,
@@ -985,7 +999,7 @@ function tahsilatYap(yontem){
   }
 }
 
-// ========== STOK YÖNETİMİ & TABLO ==========
+// ========== STOK YÖNETİMİ ==========
 function openStokGiris(){
   setStokTab('liste');
   document.getElementById('stokModal').classList.add('open');
@@ -1075,11 +1089,10 @@ function stokGirisKaydet(){
     adet: adet,
     birimAlis: birimAlis,
     odemeTuru: tur,
-    tarih: new Date().toLocaleDateString('tr-TR'),
+    tarih: bugunTarihTR(),
     saat: new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})
   });
 
-  // Yerel stoğu da anında artır
   const ex = STOK.find(x=>x.urun.toLowerCase() === urun.toLowerCase());
   if(ex){ ex.stok += adet; ex.sonAlis = birimAlis; }
   else { STOK.push({ urun: urun, stok: adet, sonAlis: birimAlis, kritik: 5 }); }
@@ -1122,15 +1135,16 @@ function gecmisKayitSil(idx){
     tip: 'gecmisSil', 
     masa: kayit.masa, 
     saat: kayit.saat, 
-    tarih: kayit.tarih || new Date().toLocaleDateString('tr-TR')
+    tarih: kayit.tarih || bugunTarihTR()
   });
 
   BUGUN_SATISLAR.splice(idx, 1);
+  localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
   openGecmis();
   toast('Satış iptal edildi ve silindi ✓');
 }
 
-// ========== GÜN SONU KONTROLÜ (KESİN HESAPLAMA) ==========
+// ========== GÜN SONU KONTROLÜ ==========
 function openGunSonu(){
   const acikMasaIsimleri = [];
   for(const id in adisyonlar){
@@ -1205,11 +1219,12 @@ function gunSonuKaydet(){
 
   const now = new Date();
   const netKasa = (nakit + kart + iban) - giderToplam;
+  const tarih = bugunTarihTR();
 
   sheetsGonder({
     tip: 'gunsonu', 
-    isGunu: now.toLocaleDateString('tr-TR'), 
-    tarih: now.toLocaleDateString('tr-TR'), 
+    isGunu: tarih, 
+    tarih: tarih, 
     saat: now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}),
     bolum: '', 
     masa: 'GÜN SONU RAPORU', 
@@ -1226,6 +1241,7 @@ function gunSonuKaydet(){
   });
 
   BUGUN_SATISLAR = [];
+  localStorage.removeItem('artcity_bugunsatislar');
   closeModal('gunSonuModal');
   toast('Gün sonu Google Sheets’e kaydedildi ✓', true);
 }
@@ -1239,13 +1255,16 @@ function giderEkle(){
   
   const now = new Date();
   const saat = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
-  const tarih = now.toLocaleDateString('tr-TR');
+  const tarih = bugunTarihTR();
 
-  BUGUN_SATISLAR.push({
+  const yeniGider = {
     tarih: tarih, saat: saat, tur: 'Gider', zone: '-', masa: a, detay: 'Gider ('+tur+')',
     araToplam: 0, ikram: 0, iskonto: 0, toplam: -t,
     nakit: tur==='Nakit' ? -t : 0, kart: tur==='Kart' ? -t : 0, iban: tur==='IBAN' ? -t : 0, veresiye: 0
-  });
+  };
+
+  BUGUN_SATISLAR.push(yeniGider);
+  localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
 
   sheetsGonder({
     tip: 'gider', isGunu: tarih, tarih: tarih, saat: saat,
@@ -1297,7 +1316,7 @@ function veresiyeOde(isim, bakiye){
   let tip = (prompt('Tahsilat türü? (nakit / kart / iban)', 'nakit') || 'nakit').toLocaleLowerCase('tr');
   const now = new Date();
   const saat = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-  const tarih = now.toLocaleDateString('tr-TR');
+  const tarih = bugunTarihTR();
 
   sheetsGonder({
     tip: 'veresiye', isim: isim, tarih: tarih, saat: saat, islem: 'Ödeme', tutar: tut, odemeTuru: tip, not: 'Borç Kapatma'
@@ -1351,7 +1370,13 @@ async function verileriSenkronizeEt(){
       if(Array.isArray(json.menu) && json.menu.length > 0) MENU = json.menu;
       if(Array.isArray(json.stok) && json.stok.length > 0) STOK = json.stok;
       if(json.veresiyeler) VERESIYELER = json.veresiyeler;
-      if(Array.isArray(json.bugunSatislar)) BUGUN_SATISLAR = json.bugunSatislar;
+      
+      // Google Sheets'ten bugünün satışları geldiyse birleştir
+      if(Array.isArray(json.bugunSatislar)){
+        BUGUN_SATISLAR = json.bugunSatislar;
+        localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
+      }
+      
       if(json.masalar) { tables = json.masalar; renderZones(); }
 
       // Garson Çağrısı Kontrolü
