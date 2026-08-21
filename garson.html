@@ -113,8 +113,15 @@ button{font-family:inherit;cursor:pointer;border:none}
 <script>
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6vvpguQmXhZDbSZwJU0VCFJhdQq3DoFzb2bVdT2FZtWSzCy9/exec";
 
+const ZONES = ["Ön","Orta","Arka","Bodrum"];
+let defaultTables = {};
+ZONES.forEach(z=>defaultTables[z]=[]);
+[["Ön",4],["Orta",6],["Arka",5],["Bodrum",3]].forEach(([z,n])=>{
+  for(let i=1;i<=n;i++)defaultTables[z].push({id:z+'-'+i,name:'Masa '+i});
+});
+
+let tables = JSON.parse(localStorage.getItem('artcity_tables') || 'null') || defaultTables;
 let MENU = [];
-let tables = { "Ön":[{id:"Ön-1",name:"Masa 1"},{id:"Ön-2",name:"Masa 2"}], "Orta":[], "Arka":[], "Bodrum":[] };
 let adisyonlar = {};
 let masaAcilisZamanlari = {};
 let activeZone = "Ön";
@@ -151,16 +158,21 @@ function getGecenSure(id){
 }
 
 function renderZones(){
-  const zKeys = Object.keys(tables);
+  const zKeys = Object.keys(tables).length ? Object.keys(tables) : ZONES;
   if(!zKeys.includes(activeZone) && zKeys.length > 0) activeZone = zKeys[0];
   document.getElementById('zones').innerHTML = zKeys.map(z=>
-    `<button class="zone ${z===activeZone?'active':''}" onclick="selZone('${z}')">${z}</button>`
+    `<button class="zone ${z===activeZone?'active':''}" onclick="selZone('${z}')">${z} (${(tables[z]||[]).length})</button>`
   ).join('');
 }
 function selZone(z){ activeZone=z; renderZones(); renderTables(); }
 
 function renderTables(){
   const list = tables[activeZone] || [];
+  if(!list.length){
+    document.getElementById('tables').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted)">Bu bölümde henüz masa tanımlanmamış.</div>';
+    return;
+  }
+
   document.getElementById('tables').innerHTML = list.map(t=>{
     const ad = adisyonlar[t.id] || [];
     let tot = 0; ad.forEach(x=> tot += (Number(x.fiyat)||0) * (Number(x.qty)||1));
@@ -308,8 +320,13 @@ async function senkronizeEt(){
     const res = await fetch(SHEETS_URL);
     const json = await res.json();
     if(json && json.ok){
-      if(json.menu) MENU = json.menu;
-      if(json.masalar) { tables = json.masalar; renderZones(); }
+      if(Array.isArray(json.menu) && json.menu.length > 0) MENU = json.menu;
+      if(json.masalar && Object.keys(json.masalar).length > 0) { 
+        tables = json.masalar; 
+        localStorage.setItem('artcity_tables', JSON.stringify(tables));
+        renderZones(); 
+        renderTables();
+      }
       if(Array.isArray(json.acik)){
         let yeni = {};
         json.acik.forEach(item=>{
