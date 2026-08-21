@@ -24,7 +24,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .zone.active{background:linear-gradient(135deg,var(--amber),var(--red));border-color:transparent;color:#fff}
 
 .tables{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px}
-.table{position:relative;aspect-ratio:1/.9;background:var(--card);border:1.5px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+.table{position:relative;aspect-ratio:1/.9;background:var(--card);border:1.5px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
 .table:active{transform:scale(.97)}
 .table.dolu{background:linear-gradient(150deg,#3a1a12,#2a1420);border-color:var(--red)}
 .table .tn{font-family:'Bebas Neue';font-size:22px;letter-spacing:.5px}
@@ -32,8 +32,8 @@ button{font-family:inherit;cursor:pointer;border:none}
 .table .empty{font-size:11px;color:var(--muted)}
 .table .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--green)}
 .table.dolu .dot{background:var(--red);box-shadow:0 0 6px var(--red)}
+.table .sure-badge{position:absolute;top:6px;left:6px;font-size:9.5px;font-weight:700;background:rgba(0,0,0,.4);color:var(--gold);padding:2px 6px;border-radius:8px}
 
-/* SİPARİŞ MODAL */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:50;display:none;align-items:flex-end}
 .modal.open{display:flex}
 .modal-box{background:var(--panel);width:100%;max-height:88vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:slideUp .25s ease}
@@ -43,7 +43,6 @@ button{font-family:inherit;cursor:pointer;border:none}
 .modal-head .t{font-family:'Bebas Neue';font-size:24px}
 .modal-head .sub{font-size:12px;color:var(--muted);margin-top:2px}
 
-/* MEVCUT ADİSYON DETAYI (AKORDİYON) */
 .existing-order{background:var(--card);margin:10px 16px 0;padding:10px 12px;border-radius:12px;border:1px solid var(--line);max-height:110px;overflow-y:auto}
 .existing-head{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
 .existing-line{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.05);color:var(--cream)}
@@ -64,7 +63,6 @@ button{font-family:inherit;cursor:pointer;border:none}
 .basket{background:var(--card);border-top:1px solid var(--line);padding:12px 16px}
 .basket-summary{font-size:12px;color:var(--gold);margin-bottom:8px;max-height:45px;overflow-y:auto;font-weight:600}
 .b-send{width:100%;padding:14px;border-radius:12px;background:var(--green);color:#062812;font-size:15px;font-weight:800;border:none}
-.b-send:active{transform:scale(.98)}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--cream);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:100;opacity:0;transition:.3s;border:1px solid var(--green);box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .toast.show{opacity:1}
@@ -80,7 +78,6 @@ button{font-family:inherit;cursor:pointer;border:none}
 <div class="zones" id="zones"></div>
 <div class="tables" id="tables"></div>
 
-<!-- SİPARİŞ VERME & ADİSYON İNCELEME MODALI -->
 <div class="modal" id="orderModal">
   <div class="modal-box">
     <div class="modal-head">
@@ -91,7 +88,6 @@ button{font-family:inherit;cursor:pointer;border:none}
       <button style="background:var(--card2);color:var(--cream);border:none;width:34px;height:34px;border-radius:10px;font-size:16px" onclick="closeOrder()">✕</button>
     </div>
 
-    <!-- DOLU MASANIN İÇİNDEKİ SİPARİŞLER -->
     <div class="existing-order" id="existingOrderBox" style="display:none">
       <div class="existing-head">Masada Açık Olan Siparişler:</div>
       <div id="existingOrderList"></div>
@@ -120,6 +116,7 @@ const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6
 let MENU = [];
 let tables = { "Ön":[{id:"Ön-1",name:"Masa 1"},{id:"Ön-2",name:"Masa 2"}], "Orta":[], "Arka":[], "Bodrum":[] };
 let adisyonlar = {};
+let masaAcilisZamanlari = {};
 let activeZone = "Ön";
 let curTable = null;
 let activeCat = null;
@@ -144,6 +141,15 @@ function toast(m){
   setTimeout(()=>t.className='toast',2000);
 }
 
+function getGecenSure(id){
+  const t = masaAcilisZamanlari[id];
+  if(!t) return null;
+  const diff = Math.floor((Date.now() - t) / 60000);
+  if(diff < 1) return "yeni";
+  if(diff >= 60) return Math.floor(diff/60) + " sa " + (diff%60) + " dk";
+  return diff + " dk";
+}
+
 function renderZones(){
   const zKeys = Object.keys(tables);
   if(!zKeys.includes(activeZone) && zKeys.length > 0) activeZone = zKeys[0];
@@ -159,8 +165,11 @@ function renderTables(){
     const ad = adisyonlar[t.id] || [];
     let tot = 0; ad.forEach(x=> tot += (Number(x.fiyat)||0) * (Number(x.qty)||1));
     const dolu = ad.length > 0;
+    const sure = dolu ? getGecenSure(t.id) : null;
+
     return `
       <div class="table ${dolu?'dolu':''}" onclick="openTable('${t.id}')">
+        ${sure ? `<span class="sure-badge">⏱️ ${sure}</span>` : ''}
         <span class="dot"></span>
         <span class="tn">${t.name}</span>
         ${dolu ? `<span class="ta">${tot} ₺</span>` : `<span class="empty">boş</span>`}
@@ -186,9 +195,8 @@ function openTable(id){
   ad.forEach(x=> tot += (Number(x.fiyat)||0) * (Number(x.qty)||1));
 
   document.getElementById('mTitle').textContent = t.zone + ' · ' + t.name;
-  document.getElementById('mSub').textContent = doluMu(id) ? 'Mevcut Tutar: ' + tot + ' ₺' : 'Masa Boş';
+  document.getElementById('mSub').textContent = (ad.length > 0) ? 'Mevcut Tutar: ' + tot + ' ₺' : 'Masa Boş';
   
-  // Dolu masanın sipariş detaylarını göster
   const exBox = document.getElementById('existingOrderBox');
   const exList = document.getElementById('existingOrderList');
   if(ad.length > 0){
@@ -205,10 +213,6 @@ function openTable(id){
   renderProds();
   updateBasket();
   document.getElementById('orderModal').classList.add('open');
-}
-
-function doluMu(id){
-  return (adisyonlar[id] && adisyonlar[id].length > 0);
 }
 
 function closeOrder(){ document.getElementById('orderModal').classList.remove('open'); }
@@ -270,7 +274,11 @@ async function siparisGonder(){
   if(!sepet.length || !curTable) return;
   const t = findTable(curTable);
   
-  if(!adisyonlar[curTable]) adisyonlar[curTable] = [];
+  if(!adisyonlar[curTable]){
+    adisyonlar[curTable] = [];
+    masaAcilisZamanlari[curTable] = Date.now();
+  }
+
   sepet.forEach(s=>{
     const ex = adisyonlar[curTable].find(x=>x.urun===s.urun);
     if(ex) ex.qty += s.qty; else adisyonlar[curTable].push({...s});
@@ -312,10 +320,18 @@ async function senkronizeEt(){
             if(f){ tid = f.id; break; }
           }
           if(!tid) return;
-          if(!yeni[tid]) yeni[tid] = [];
+          if(!yeni[tid]){
+            yeni[tid] = [];
+            if(!masaAcilisZamanlari[tid]) masaAcilisZamanlari[tid] = Date.now();
+          }
           const ex = yeni[tid].find(l=>l.urun===item.urun);
           if(ex) ex.qty += (item.adet||1); else yeni[tid].push({ urun:item.urun, fiyat:item.fiyat||0, qty:item.adet||1 });
         });
+        
+        for(const k in masaAcilisZamanlari){
+          if(!yeni[k]) delete masaAcilisZamanlari[k];
+        }
+
         adisyonlar = yeni;
         renderTables();
       }
