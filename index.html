@@ -245,13 +245,11 @@ button{font-family:inherit;cursor:pointer;border:none}
         <button class="btn ghost" id="stokTabGiris" style="flex:1;justify-content:center" onclick="setStokTab('giris')">➕ Yeni Mal Girişi</button>
       </div>
 
-      <!-- STOK LİSTESİ PANELİ -->
       <div id="stokListePanel">
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Google Sheets'teki güncel stok miktarları:</div>
         <div id="stokTabloContainer" style="max-height:300px;overflow-y:auto"></div>
       </div>
 
-      <!-- STOK GİRİŞ PANELİ -->
       <div id="stokGirisPanel" style="display:none">
         <div class="field">
           <label>Ürün Seç</label>
@@ -299,7 +297,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- ADİSYON GEÇMİŞİ MODAL -->
 <div class="modal" id="gecmisModal">
-  <div class="modal-panel">
+  <div class="modal-panel" style="max-width:520px">
     <div class="modal-head"><span class="t">📜 Bugün Kapatılan Adisyonlar</span><button class="x" onclick="closeModal('gecmisModal')">✕</button></div>
     <div class="modal-body" id="gecmisBody"></div>
   </div>
@@ -323,7 +321,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- VERESİYE DEFTERİ -->
 <div class="modal" id="veresiyeModal">
-  <div class="modal-panel">
+  <div class="modal-panel" style="max-width:560px">
     <div class="modal-head"><span class="t">📕 Veresiye Defteri</span><button class="x" onclick="closeModal('veresiyeModal')">✕</button></div>
     <div class="modal-body" id="veresiyeBody"></div>
   </div>
@@ -347,7 +345,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6vvpguQmXhZDbSZwJU0VCFJhdQq3DoFzb2bVdT2FZtWSzCy9/exec";
 
 let MENU = [];
-let STOK = [];
+let STOK = JSON.parse(localStorage.getItem('artcity_stok_cache') || '[]');
 let VERESIYELER = {};
 let BUGUN_SATISLAR = JSON.parse(localStorage.getItem('artcity_bugunsatislar') || '[]');
 
@@ -370,8 +368,21 @@ let payMode = 'tam';
 let parcaliSecim = {};
 let aktifCagriMasa = null;
 let audioCtx = null;
+let localAdisyonDirtyUntil = 0;
+let sonKapatilanCagriKey = localStorage.getItem('artcity_son_kapatilan_cagri') || '';
+let aktifCagriKeyValue = '';
 
-function money(n){return Math.round(n).toLocaleString('tr-TR')+' ₺';}
+function money(n){
+  const value = Number(n) || 0;
+  return value.toLocaleString('tr-TR',{minimumFractionDigits:0,maximumFractionDigits:2})+' ₺';
+}
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+function markAdisyonDirty(){ localAdisyonDirtyUntil = Date.now() + 7000; }
+function adisyonDirty(){ return Date.now() < localAdisyonDirtyUntil; }
 function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(ok?' ok':'');setTimeout(()=>t.className='toast',2200);}
 function clock(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleDateString('tr-TR')+' · '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
 setInterval(clock,1000);clock();
@@ -512,7 +523,14 @@ function masaYenidenAdlandir(id){
   document.getElementById('masaModal').classList.add('open');
   setTimeout(()=>{ const i=document.getElementById('masaAdInput'); i.focus(); i.select(); }, 100);
 }
-function masaSil(id){ masaYenidenAdlandir(id); }
+function masaSil(id){
+  const ad = adisyonlar[id] || [];
+  if(ad.length){
+    toast('Bu masa dolu. Önce hesabı kapatın veya masayı taşıyın.');
+    return;
+  }
+  masaYenidenAdlandir(id);
+}
 function masaKaydet(){
   const isim = document.getElementById('masaAdInput').value.trim();
   if(!isim){ toast('Masa adı boş olamaz'); return; }
@@ -536,6 +554,11 @@ function masaKaydet(){
 function masaModalSil(){
   const id = masaModalMode;
   if(id === 'ekle') return;
+  if((adisyonlar[id]||[]).length){
+    toast('Dolu masa silinemez. Önce hesabı kapatın veya taşıyın.');
+    return;
+  }
+  if(!confirm('Bu masayı silmek istediğinize emin misiniz?')) return;
   for(const z of ZONES){
     const i = (tables[z]||[]).findIndex(x => x.id === id);
     if(i >= 0){ tables[z].splice(i, 1); break; }
@@ -618,6 +641,7 @@ function renderAdisyon(){
 
 function urunSil(i){
   if(!activeTable || !adisyonlar[activeTable]) return;
+  markAdisyonDirty();
   const t = findTable(activeTable);
   const silinen = adisyonlar[activeTable][i];
   
@@ -670,6 +694,7 @@ function masaTasiOnayla(){
 
   const kaynakAd = adisyonlar[activeTable] || [];
   if(!kaynakAd.length){ toast('Taşınacak sipariş yok'); return; }
+  markAdisyonDirty();
 
   if(!adisyonlar[hedefId]) adisyonlar[hedefId] = [];
   kaynakAd.forEach(item=>{
@@ -759,7 +784,13 @@ function filterProds(){renderCatItems();}
 
 function urunEkle(urun, fiyat){
   if(!activeTable){ toast('Masa seçili değil'); return; }
+  const stok = getUrunStok(urun);
+  if(stok !== null && Number(stok) <= 0){
+    toast(urun + ' stokta yok');
+    return;
+  }
   const t = findTable(activeTable);
+  markAdisyonDirty();
 
   if(!adisyonlar[activeTable]) adisyonlar[activeTable] = [];
   const ex = adisyonlar[activeTable].find(l => l.urun === urun);
@@ -783,8 +814,22 @@ function openManuelUrunEkle(){
   if(!u) return;
   const f = prompt('Fiyatı (₺):', '50');
   if(f === null) return;
-  urunEkle(u.trim(), parseInt(f) || 0);
+  const fiyat = Number(String(f).replace(',','.'));
+  if(!Number.isFinite(fiyat) || fiyat <= 0){ toast('Geçerli bir fiyat girin'); return; }
+  urunEkle(u.trim(), fiyat);
   closeCatalog();
+}
+
+function stokDus(urunler){
+  let changed = false;
+  (urunler || []).forEach(item=>{
+    const st = STOK.find(x => String(x.urun).toLowerCase() === String(item.urun).toLowerCase());
+    if(st){
+      st.stok = Math.max(0, Number(st.stok || 0) - Number(item.qty || 0));
+      changed = true;
+    }
+  });
+  if(changed) localStorage.setItem('artcity_stok_cache', JSON.stringify(STOK));
 }
 
 // ========== ÖDEME VE SATIŞ KAYDI ==========
@@ -795,6 +840,7 @@ function openOdeme(){
   payMode = 'tam';
   setPayMode('tam');
   document.getElementById('tamVeresiyeField').style.display = 'none';
+  document.getElementById('tamVeresiyeName').value = '';
   document.getElementById('odemeModal').classList.add('open');
 }
 
@@ -867,6 +913,9 @@ function hesaplaParcaliTutar(){
 }
 
 function tahsilatYap(yontem){
+  if(!activeTable) return;
+  const allowed = ['nakit','kart','iban','veresiye'];
+  if(!allowed.includes(yontem)){ toast('Geçersiz ödeme türü'); return; }
   const t = findTable(activeTable);
   const now = new Date();
   const saat = now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
@@ -923,28 +972,30 @@ function tahsilatYap(yontem){
       });
     }
 
+    stokDus(adList);
+    markAdisyonDirty();
     delete adisyonlar[activeTable];
     closeModal('odemeModal');
+    document.getElementById('tamVeresiyeField').style.display='none';
+    document.getElementById('tamVeresiyeName').value='';
     activeTable = null;
     renderAdisyon();
     toast('Masa hesabı kapatıldı ✓', true);
 
   } else {
-    let odenenler = [];
+    const secimler = [];
     let tot = 0;
     adList.forEach((item, idx)=>{
       const q = parcaliSecim[idx] || 0;
       if(q > 0){
-        odenenler.push({ urun: item.urun, fiyat: item.fiyat, qty: q });
+        secimler.push({ index: idx, urun: item.urun, fiyat: item.fiyat, qty: q });
         tot += item.fiyat * q;
-        item.qty -= q;
       }
     });
 
     if(tot <= 0){ toast('Ödenecek ürün seçilmedi'); return; }
 
-    const urunlerStr = odenenler.map(l=>l.qty+'x '+l.urun).join(', ');
-    const o = {nakit:0, kart:0, iban:0, veresiye:0};
+    let o = {nakit:0, kart:0, iban:0, veresiye:0};
     if(yontem==='nakit') o.nakit = tot;
     else if(yontem==='kart') o.kart = tot;
     else if(yontem==='iban') o.iban = tot;
@@ -962,6 +1013,14 @@ function tahsilatYap(yontem){
       o.vname = isim;
     }
 
+    const odenenler = secimler.map(x=>({urun:x.urun,fiyat:x.fiyat,qty:x.qty}));
+    const urunlerStr = odenenler.map(l=>l.qty+'x '+l.urun).join(', ');
+
+    secimler.forEach(x=>{
+      const item = adList[x.index];
+      item.qty -= x.qty;
+    });
+
     const yeniSatis = {
       tarih: tarih, saat: saat, tur: 'Satış', zone: t.zone, masa: t.name + ' (Kısmi)', detay: urunlerStr,
       araToplam: tot, ikram: 0, iskonto: 0, toplam: tot,
@@ -970,6 +1029,7 @@ function tahsilatYap(yontem){
 
     BUGUN_SATISLAR.push(yeniSatis);
     localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
+    markAdisyonDirty();
 
     sheetsGonder({
       tip: 'satis', isGunu: tarih, tarih: tarih, saat: saat,
@@ -990,10 +1050,14 @@ function tahsilatYap(yontem){
       });
     }
 
+    stokDus(odenenler);
+
     adisyonlar[activeTable] = adList.filter(x=>x.qty > 0);
     if(!adisyonlar[activeTable].length) delete adisyonlar[activeTable];
 
     closeModal('odemeModal');
+    document.getElementById('tamVeresiyeField').style.display='none';
+    document.getElementById('tamVeresiyeName').value='';
     renderAdisyon();
     toast('Parçalı ödeme alındı: ' + money(tot), true);
   }
@@ -1081,7 +1145,9 @@ function stokGirisKaydet(){
   const birimAlis = +document.getElementById('stokBirimAlis').value || 0;
   const tur = document.getElementById('stokOdemeTur').value;
 
-  if(!adet || !birimAlis){ toast('Lütfen adet ve alış fiyatı girin'); return; }
+  if(!Number.isInteger(adet) || adet <= 0 || birimAlis <= 0){
+    toast('Adet tam sayı, alış fiyatı 0’dan büyük olmalı'); return;
+  }
 
   sheetsGonder({
     tip: 'stokGiris',
@@ -1096,6 +1162,7 @@ function stokGirisKaydet(){
   const ex = STOK.find(x=>x.urun.toLowerCase() === urun.toLowerCase());
   if(ex){ ex.stok += adet; ex.sonAlis = birimAlis; }
   else { STOK.push({ urun: urun, stok: adet, sonAlis: birimAlis, kritik: 5 }); }
+  localStorage.setItem('artcity_stok_cache', JSON.stringify(STOK));
 
   setStokTab('liste');
   toast(urun + ' stoğu güncellendi (+'+adet+')', true);
@@ -1196,7 +1263,7 @@ function openGunSonu(){
     <div class="report-row"><span class="rl">🏦 IBAN Satış</span><span class="rv">${money(iban)}</span></div>
     <div class="report-row"><span class="rl">📕 Veresiye Satış</span><span class="rv">${money(veresiye)}</span></div>
     <div class="report-row"><span class="rl">🧾 Günlük Giderler</span><span class="rv" style="color:var(--red)">-${money(giderToplam)}</span></div>
-    <div class="report-row big"><span class="rl">Kasada Kalan Net Tutar</span><span class="rv" style="color:var(--green)">${money(netKasa)}</span></div>
+    <div class="report-row big"><span class="rl">Net Tahsilat (Giderler Sonrası)</span><span class="rv" style="color:var(--green)">${money(netKasa)}</span></div>
   `;
   document.getElementById('gunSonuBody').innerHTML = h;
   document.getElementById('gunSonuModal').classList.add('open');
@@ -1337,9 +1404,12 @@ function veresiyeOde(isim, bakiye){
 // ========== GARSON ÇAĞRISI KAPATMA ==========
 function cagriyiKapat(){
   if(!aktifCagriMasa) return;
-  sheetsGonder({ tip: 'cagriKapat', masa: aktifCagriMasa });
+  sheetsGonder({ tip: 'cagriKapat', masa: aktifCagriMasa, cagriKey: aktifCagriKeyValue });
+  sonKapatilanCagriKey = aktifCagriKeyValue;
+  localStorage.setItem('artcity_son_kapatilan_cagri', sonKapatilanCagriKey);
   document.getElementById('cagriBanner').style.display = 'none';
   aktifCagriMasa = null;
+  aktifCagriKeyValue = '';
 }
 
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -1367,12 +1437,15 @@ async function verileriSenkronizeEt(){
     const res = await fetch(SHEETS_URL);
     const json = await res.json();
     if(json && json.ok){
-      if(Array.isArray(json.menu) && json.menu.length > 0) MENU = json.menu;
-      if(Array.isArray(json.stok) && json.stok.length > 0) STOK = json.stok;
+      if(Array.isArray(json.menu)) MENU = json.menu;
+      if(Array.isArray(json.stok)){
+        STOK = json.stok;
+        localStorage.setItem('artcity_stok_cache', JSON.stringify(STOK));
+      }
       if(json.veresiyeler) VERESIYELER = json.veresiyeler;
       
-      // Google Sheets'ten bugünün satışları geldiyse birleştir
-      if(Array.isArray(json.bugunSatislar)){
+      // Google Sheets'ten gelen bugünün satışlarını yerel listeyle birleştir
+      if(Array.isArray(json.bugunSatislar) && json.bugunSatislar.length > 0){
         BUGUN_SATISLAR = json.bugunSatislar;
         localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
       }
@@ -1382,15 +1455,17 @@ async function verileriSenkronizeEt(){
       // Garson Çağrısı Kontrolü
       if(Array.isArray(json.cagrilar) && json.cagrilar.length > 0){
         const sonCagri = json.cagrilar[json.cagrilar.length - 1];
-        if(aktifCagriMasa !== sonCagri.masa){
+        const cagriKey = String(sonCagri.id ?? ((sonCagri.masa||'') + '|' + (sonCagri.zaman||sonCagri.tarih||'')));
+        if(cagriKey !== sonKapatilanCagriKey && cagriKey !== aktifCagriKeyValue){
           aktifCagriMasa = sonCagri.masa;
-          document.getElementById('cagriText').textContent = '🔔 ' + sonCagri.masa + ' garson çağırıyor! (' + sonCagri.zaman + ')';
+          aktifCagriKeyValue = cagriKey;
+          document.getElementById('cagriText').textContent = '🔔 ' + esc(sonCagri.masa) + ' garson çağırıyor! (' + esc(sonCagri.zaman || '') + ')';
           document.getElementById('cagriBanner').style.display = 'flex';
           sesliAnons('Masa ile ilgilenir misiniz?');
         }
       }
 
-      if(Array.isArray(json.acik)){
+      if(Array.isArray(json.acik) && !adisyonDirty() && kuyruk.length === 0){
         let yeniAdisyonlar = {};
         json.acik.forEach(item => {
           const rawMasa = (item.masa || '').trim();
