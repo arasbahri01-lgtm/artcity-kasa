@@ -28,7 +28,6 @@ button{font-family:inherit;cursor:pointer;border:none}
 .btn.purple{background:var(--purple);color:#fff;border:none}
 .btn.ghost{background:transparent}
 
-/* GARSON ÇAĞRI BİLDİRİM BARI */
 .cagri-banner{background:linear-gradient(90deg,var(--amber),var(--red));color:#fff;padding:10px 18px;font-size:14px;font-weight:700;display:none;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(240,52,28,.4);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.85;transform:scale(1.005)}}
 
@@ -234,7 +233,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <!-- STOK YÖNETİMİ & LİSTE MODALI -->
 <div class="modal" id="stokModal">
-  <div class="modal-panel">
+  <div class="modal-panel" style="max-width:560px">
     <div class="modal-head">
       <span class="t">📦 Stok Takibi & Girişi</span>
       <button class="x" onclick="closeModal('stokModal')">✕</button>
@@ -639,6 +638,7 @@ function renderAdisyon(){
   renderTables();
 }
 
+// ========== ADİSYONDAN ÜRÜN SİLME & STOK İADESİ ==========
 function urunSil(i){
   if(!activeTable || !adisyonlar[activeTable]) return;
   markAdisyonDirty();
@@ -653,6 +653,9 @@ function urunSil(i){
     adisyonlar[activeTable].splice(i, 1);
   }
   
+  // Yerel stoğa anında +1 iade et
+  stokIade([{ urun: silinen.urun, qty: 1 }]);
+
   if(!adisyonlar[activeTable].length) delete adisyonlar[activeTable];
   renderAdisyon();
   
@@ -662,7 +665,7 @@ function urunSil(i){
     urun: silinen.urun
   });
   
-  toast(silinen.urun + ' silindi', true);
+  toast(silinen.urun + ' silindi ve stoğa iade edildi (+1)', true);
   setTimeout(() => { silmeKilitli = false; }, 3500);
 }
 
@@ -784,11 +787,6 @@ function filterProds(){renderCatItems();}
 
 function urunEkle(urun, fiyat){
   if(!activeTable){ toast('Masa seçili değil'); return; }
-  const stok = getUrunStok(urun);
-  if(stok !== null && Number(stok) <= 0){
-    toast(urun + ' stokta yok');
-    return;
-  }
   const t = findTable(activeTable);
   markAdisyonDirty();
 
@@ -826,6 +824,18 @@ function stokDus(urunler){
     const st = STOK.find(x => String(x.urun).toLowerCase() === String(item.urun).toLowerCase());
     if(st){
       st.stok = Math.max(0, Number(st.stok || 0) - Number(item.qty || 0));
+      changed = true;
+    }
+  });
+  if(changed) localStorage.setItem('artcity_stok_cache', JSON.stringify(STOK));
+}
+
+function stokIade(urunler){
+  let changed = false;
+  (urunler || []).forEach(item=>{
+    const st = STOK.find(x => String(x.urun).toLowerCase() === String(item.urun).toLowerCase());
+    if(st){
+      st.stok = Number(st.stok || 0) + Number(item.qty || 1);
       changed = true;
     }
   });
@@ -947,7 +957,8 @@ function tahsilatYap(yontem){
     const yeniSatis = {
       tarih: tarih, saat: saat, tur: 'Satış', zone: t.zone, masa: t.name, detay: urunlerStr,
       araToplam: ara, ikram: 0, iskonto: 0, toplam: toplam,
-      nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye
+      nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye,
+      urunlerDizi: JSON.parse(JSON.stringify(adList))
     };
 
     BUGUN_SATISLAR.push(yeniSatis);
@@ -1024,7 +1035,8 @@ function tahsilatYap(yontem){
     const yeniSatis = {
       tarih: tarih, saat: saat, tur: 'Satış', zone: t.zone, masa: t.name + ' (Kısmi)', detay: urunlerStr,
       araToplam: tot, ikram: 0, iskonto: 0, toplam: tot,
-      nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye
+      nakit: o.nakit, kart: o.kart, iban: o.iban, veresiye: o.veresiye,
+      urunlerDizi: JSON.parse(JSON.stringify(odenenler))
     };
 
     BUGUN_SATISLAR.push(yeniSatis);
@@ -1168,7 +1180,7 @@ function stokGirisKaydet(){
   toast(urun + ' stoğu güncellendi (+'+adet+')', true);
 }
 
-// ========== ADİSYON GEÇMİŞİ ==========
+// ========== ADİSYON GEÇMİŞİ & İPTALDE STOK İADESİ ==========
 function openGecmis(){
   const body = document.getElementById('gecmisBody');
   const satislar = BUGUN_SATISLAR.filter(x=>x.tur === 'Satış');
@@ -1185,7 +1197,7 @@ function openGecmis(){
           </div>
           <div style="font-size:12px;color:var(--muted)">🕒 ${s.saat} · ${s.detay}</div>
           <div class="history-actions">
-            <button class="btn red" onclick="gecmisKayitSil(${idx})">🗑️ İptal Et / Sil</button>
+            <button class="btn red" onclick="gecmisKayitSil(${idx})">🗑️ İptal Et / Sil (Stoğu İade Et)</button>
           </div>
         </div>
       `;
@@ -1195,20 +1207,26 @@ function openGecmis(){
 }
 
 function gecmisKayitSil(idx){
-  if(!confirm('Bu satışı Google Sheets kayıtlarından tamamen silmek istediğinize emin misiniz?')) return;
+  if(!confirm('Bu satışı iptal edip silmek ve ürünleri stoğa geri yüklemek istediğinize emin misiniz?')) return;
   const kayit = BUGUN_SATISLAR[idx];
   
+  // Yerel stoğa toplu iade yap
+  if(kayit.urunlerDizi && kayit.urunlerDizi.length > 0){
+    stokIade(kayit.urunlerDizi);
+  }
+
   sheetsGonder({ 
     tip: 'gecmisSil', 
     masa: kayit.masa, 
     saat: kayit.saat, 
-    tarih: kayit.tarih || bugunTarihTR()
+    tarih: kayit.tarih || bugunTarihTR(),
+    urunlerListesi: kayit.urunlerDizi || []
   });
 
   BUGUN_SATISLAR.splice(idx, 1);
   localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
   openGecmis();
-  toast('Satış iptal edildi ve silindi ✓');
+  toast('Satış iptal edildi ve stoklar geri yüklendi ✓', true);
 }
 
 // ========== GÜN SONU KONTROLÜ ==========
@@ -1444,7 +1462,6 @@ async function verileriSenkronizeEt(){
       }
       if(json.veresiyeler) VERESIYELER = json.veresiyeler;
       
-      // Google Sheets'ten gelen bugünün satışlarını yerel listeyle birleştir
       if(Array.isArray(json.bugunSatislar) && json.bugunSatislar.length > 0){
         BUGUN_SATISLAR = json.bugunSatislar;
         localStorage.setItem('artcity_bugunsatislar', JSON.stringify(BUGUN_SATISLAR));
