@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art City · Cafe & Lounge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09070d;
+  --panel:rgba(22, 19, 29, 0.75);
+  --card:rgba(29, 24, 38, 0.7);
+  --card2:#1e1829;
+  --cream:#FDF0DE;
+  --amber:#FF8A1E;
+  --vermilion:#F0341C;
+  --gold:#FFC93C;
+  --green:#25D366;
+  --purple:#7b3ff2;
+  --line:rgba(255, 220, 180, 0.12);
+  --glow:0 0 35px rgba(255, 138, 30, 0.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Sora',sans-serif;
+  background:var(--bg);
+  color:var(--cream);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+.ambient-glow{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(240,52,28,0.18), transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(123,63,242,0.2), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(255,138,30,0.14), transparent 50%);
+  animation:ambientPulse 8s ease-in-out infinite alternate;
+}
+@keyframes ambientPulse{
+  0%{transform:scale(1);}
+  100%{transform:scale(1.08);}
+}
+
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 20px;
+  position:relative;
+  z-index:2;
+}
+
+/* NAVBAR */
+nav{
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  background:rgba(9,7,13,0.85);
+  border-bottom:1px solid var(--line);
+  padding:14px 0;
+}
+.nav-content{
+  display:flex;justify-content:space-between;align-items:center;
+}
+.nav-logo{display:flex;align-items:center;text-decoration:none}
+.nav-logo svg{height:42px;width:auto}
+.nav-links{display:flex;gap:14px;align-items:center}
+.nav-links a{
+  color:var(--cream);text-decoration:none;font-size:13.5px;font-weight:600;
+  transition:.2s;opacity:.85;
+}
+.nav-links a:hover{opacity:1;color:var(--gold)}
+
+/* HERO */
+.hero{
+  padding:45px 0 35px;
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.hero-logo-box{
+  width:min(85%, 300px);
+  margin:0 auto 16px;
+  filter:drop-shadow(0 14px 28px rgba(255,138,30,0.3));
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,201,60,0.1);border:1px solid rgba(255,201,60,0.3);
+  padding:6px 16px;border-radius:30px;font-size:13px;font-weight:700;
+  color:var(--gold);margin-bottom:14px;
+}
+.hero-title{
+  font-family:'Bebas Neue';font-size:clamp(40px, 7vw, 76px);
+  line-height:0.98;letter-spacing:2px;
+  background:linear-gradient(135deg,#fff 30%,var(--gold) 80%,var(--amber) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:10px;
+}
+.hero-subtitle{
+  font-family:'Caveat';font-size:clamp(22px, 3.5vw, 32px);
+  color:var(--gold);margin-bottom:16px;
+}
+.hero-desc{
+  max-width:620px;font-size:14.5px;line-height:1.6;color:rgba(253,240,222,0.7);
+  margin-bottom:28px;
+}
+
+/* BUTONLAR */
+.btn-group{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{
+  padding:13px 24px;border-radius:14px;font-weight:700;font-size:14.5px;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  cursor:pointer;border:none;transition:transform .2s, box-shadow .2s;
+  font-family:inherit;
+}
+.btn:active{transform:scale(0.97)}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--amber),var(--vermilion));
+  color:#fff;box-shadow:0 8px 25px rgba(240,52,28,0.35);
+}
+.btn-whatsapp{
+  background:#25D366;color:#062812;font-weight:800;
+  box-shadow:0 8px 25px rgba(37,211,102,0.3);
+}
+
+/* DAHİLİ MENÜ ALANI */
+.menu-section{
+  padding:40px 0 60px;
+}
+.section-title{
+  text-align:center;margin-bottom:24px;
+}
+.section-title h2{font-family:'Bebas Neue';font-size:42px;letter-spacing:1.5px;color:var(--cream)}
+.section-title p{font-size:14px;color:rgba(253,240,222,0.6)}
+
+.search-container{
+  max-width:560px;margin:0 auto 18px;position:relative;
+}
+.search-input{
+  width:100%;background:var(--card2);border:1.5px solid var(--line);
+  border-radius:14px;padding:14px 18px;color:var(--cream);
+  font-size:15px;outline:none;font-family:inherit;
+}
+.search-input:focus{border-color:var(--amber);box-shadow:var(--glow)}
+
+.cat-scroll{
+  display:flex;gap:8px;overflow-x:auto;padding:6px 4px 16px;
+  scrollbar-width:none;margin-bottom:12px;
+}
+.cat-btn{
+  padding:9px 18px;border-radius:20px;background:var(--card);
+  border:1px solid var(--line);color:var(--cream);font-size:13px;
+  font-weight:700;white-space:nowrap;cursor:pointer;transition:.15s;
+}
+.cat-btn.active{
+  background:linear-gradient(135deg,var(--amber),var(--vermilion));
+  border-color:transparent;color:#fff;
+}
+
+.menu-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;
+}
+.menu-item{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px 16px;display:flex;justify-content:space-between;align-items:center;
+  gap:12px;transition:.2s;
+}
+.menu-item:hover{border-color:rgba(255,138,30,0.3);transform:translateY(-2px)}
+.menu-item .info{flex:1;min-width:0}
+.menu-item .name{font-weight:700;font-size:15px;color:var(--cream);line-height:1.25}
+.menu-item .desc{font-size:12px;color:rgba(253,240,222,0.55);margin-top:3px;line-height:1.35}
+.menu-item .price{
+  font-family:'Bebas Neue';font-size:26px;color:var(--gold);letter-spacing:.5px;white-space:nowrap;
+}
+.menu-item .price small{font-size:14px;opacity:.7;margin-left:1px}
+
+/* MODAL */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.82);
+  backdrop-filter:blur(10px);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:16px;
+}
+.modal.open{display:flex}
+.modal-box{
+  background:#16131d;border:1px solid var(--line);border-radius:24px;
+  width:100%;max-width:440px;padding:26px;position:relative;
+  box-shadow:0 15px 40px rgba(0,0,0,0.7);
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-head h3{font-family:'Bebas Neue';font-size:28px;letter-spacing:1px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.field input,.field select{
+  width:100%;background:var(--card2);border:1px solid var(--line);
+  border-radius:12px;padding:12px 14px;color:var(--cream);
+  font-family:inherit;font-size:14.5px;outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--amber)}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--line);padding:35px 0;text-align:center;
+  color:rgba(253,240,222,0.5);font-size:13px;
+}
+.footer-logo-box{width:180px;margin:0 auto 10px;display:block}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+
+<nav>
+  <div class="container nav-content">
+    <a href="#" class="nav-logo">
+      <svg viewBox="0 0 220 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="10" y="38" font-family="'Bebas Neue', sans-serif" font-size="40" font-weight="bold" fill="#FDF0DE" letter-spacing="2">ART</text>
+        <text x="85" y="38" font-family="'Bebas Neue', sans-serif" font-size="40" font-weight="bold" fill="#FF8A1E" letter-spacing="2">CITY</text>
+        <circle cx="175" cy="22" r="5" fill="#F0341C"/>
+      </svg>
+    </a>
+    <div class="nav-links">
+      <a href="#menu-alani">Menü</a>
+      <a href="javascript:void(0)" onclick="openRandevuModal()">Rezervasyon</a>
+      <a href="javascript:void(0)" onclick="openRandevuModal()" class="btn btn-whatsapp" style="padding:7px 14px;font-size:12px">WhatsApp</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <section class="hero">
+    <div class="hero-logo-box">
+      <svg viewBox="0 0 340 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF8A1E"/>
+            <stop offset="60%" stop-color="#F0341C"/>
+            <stop offset="100%" stop-color="#FFC93C"/>
+          </linearGradient>
+        </defs>
+        <text x="50%" y="75" text-anchor="middle" font-family="'Bebas Neue', sans-serif" font-size="82" font-weight="bold" fill="url(#logoGrad)" letter-spacing="4">ART CITY</text>
+        <text x="50%" y="105" text-anchor="middle" font-family="'Sora', sans-serif" font-size="13" font-weight="700" fill="#FDF0DE" letter-spacing="6" opacity="0.85">CAFE &amp; LOUNGE</text>
+      </svg>
+    </div>
+    
+    <div class="hero-badge">✨ Keyifli Vakit & Seçkin Lezzetler</div>
+    <h1 class="hero-title">SANATIN VE LEZZETİN BULUŞMA NOKTASI</h1>
+    <div class="hero-subtitle">Kahve, Kokteyl, Nargile & Dünya Mutfağı</div>
+    <p class="hero-desc">
+      Günün yorgunluğunu atmak, dostlarınızla özel anlar paylaşmak ve zengin menümüzü keşfetmek için sizi Art City atmosferine bekliyoruz.
+    </p>
+    <div class="btn-group">
+      <a href="#menu-alani" class="btn btn-primary">📖 Menüyü İncele</a>
+      <button onclick="openRandevuModal()" class="btn btn-whatsapp">💬 WhatsApp Randevu / Rezervasyon</button>
+    </div>
+  </section>
+
+  <!-- SAYFA İÇİ MENÜ BÖLÜMÜ -->
+  <section class="menu-section" id="menu-alani">
+    <div class="section-title">
+      <h2>ART CITY MENÜ</h2>
+      <p>Özenle hazırlanan sıcak, soğuk içecekler ve seçkin mutfak lezzetlerimiz</p>
+    </div>
+
+    <div class="search-container">
+      <input id="menuSearch" class="search-input" placeholder="Menüde ürün veya lezzet ara..." oninput="filterMenu()">
+    </div>
+
+    <div class="cat-scroll" id="catBar"></div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </section>
+</div>
+
+<!-- REZERVASYON MODAL -->
+<div class="modal" id="randevuModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Masa Rezervasyonu</h3>
+      <button onclick="closeRandevuModal()" style="background:transparent;color:#fff;border:none;font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div class="field">
+      <label>Adınız Soyadınız</label>
+      <input id="rIsim" type="text" placeholder="Örn: Ahmet Yılmaz">
+    </div>
+    <div class="field">
+      <label>Kişi Sayısı</label>
+      <select id="rKisi">
+        <option>2 Kişi</option>
+        <option>3-4 Kişi</option>
+        <option>5-8 Kişi</option>
+        <option>Kalabalık Grup (9+ Kişi)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Tarih & Saat</label>
+      <input id="rZaman" type="text" placeholder="Örn: Bugün 20:30">
+    </div>
+    <div class="field">
+      <label>Bölüm Tercihi</label>
+      <select id="rBolum">
+        <option>Fark Etmez / En Uygun Masa</option>
+        <option>Ön Bahçe</option>
+        <option>Orta Salon</option>
+        <option>Arka Bahçe / Teras</option>
+        <option>Bodrum</option>
+      </select>
+    </div>
+    <button class="btn btn-whatsapp" style="width:100%;justify-content:center;margin-top:10px" onclick="whatsappGonder()">
+      WhatsApp ile Rezervasyonu İlet
+    </button>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-logo-box">
+      <svg viewBox="0 0 220 50" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <text x="10" y="38" font-family="'Bebas Neue', sans-serif" font-size="36" font-weight="bold" fill="#FDF0DE" letter-spacing="2">ART</text>
+        <text x="80" y="38" font-family="'Bebas Neue', sans-serif" font-size="36" font-weight="bold" fill="#FF8A1E" letter-spacing="2">CITY</text>
+        <circle cx="160" cy="22" r="4" fill="#F0341C"/>
+      </svg>
+    </div>
+    <div>Adana · Art City Cafe &amp; Lounge</div>
+  </div>
+</footer>
+
+<script>
+// Kesin WhatsApp Numarası
+const WHATSAPP_NO = "905399631427";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsRgrlvycvbx0ODdqK6vvpguQmXhZDbSZwJU0VCFJhdQq3DoFzb2bVdT2FZtWSzCy9/exec";
+
+const DEFAULT_MENU = [
+  {"Kategori": "Kahvaltı", "Urun": "Menemen", "Aciklama": "Taze domates, biber ve yumurta", "Fiyat": "300"},
+  {"Kategori": "Kahvaltı", "Urun": "Kaşarlı Sucuklu Omlet", "Aciklama": "", "Fiyat": "280"},
+  {"Kategori": "Kahvaltı", "Urun": "Sucuklu Tost", "Aciklama": "", "Fiyat": "160"},
+  {"Kategori": "Kahvaltı", "Urun": "Kaşarlı Tost", "Aciklama": "", "Fiyat": "160"},
+  {"Kategori": "Atıştırmalıklar", "Urun": "Parmak Cips", "Aciklama": "", "Fiyat": "200"},
+  {"Kategori": "Atıştırmalıklar", "Urun": "Karışık Atıştırmalık", "Aciklama": "Sosis, Sigara Böreği, Soğan Halkası, Nugget, Cips", "Fiyat": "340"},
+  {"Kategori": "Pizza", "Urun": "Karışık Pizza", "Aciklama": "Salam, Sosis, Sucuk, Kaşar, Biber, Mantar, Mısır", "Fiyat": "300"},
+  {"Kategori": "Pizza", "Urun": "Sucuklu Pizza", "Aciklama": "Sucuk, Biber, Domates, Kaşar, Mısır", "Fiyat": "300"},
+  {"Kategori": "Hamburger & Sandviç", "Urun": "Hamburger", "Aciklama": "Özel köfte, yeşillik ve cips ile", "Fiyat": "300"},
+  {"Kategori": "Hamburger & Sandviç", "Urun": "Cheeseburger Menü", "Aciklama": "Burger + Cips + Soğan Halkası + Cola", "Fiyat": "400"},
+  {"Kategori": "Tavuk Yemekleri", "Urun": "Kremalı Mantarlı Tavuk", "Aciklama": "Pilav ve Cips ile servis edilir", "Fiyat": "300"},
+  {"Kategori": "Tavuk Yemekleri", "Urun": "Köri Soslu Tavuk", "Aciklama": "Pilav ve Cips ile servis edilir", "Fiyat": "300"},
+  {"Kategori": "Makarnalar", "Urun": "Penna Polo", "Aciklama": "Tavuk, Mantar, Krema", "Fiyat": "250"},
+  {"Kategori": "Tatlılar", "Urun": "Waffle", "Aciklama": "Çikolata ve mevsim meyveleri ile", "Fiyat": "180"},
+  {"Kategori": "Çerezler & Mezeler", "Urun": "Karışık Çerez", "Aciklama": "", "Fiyat": "200"},
+  {"Kategori": "Sıcak İçecekler", "Urun": "Türk Kahvesi", "Aciklama": "", "Fiyat": "100"},
+  {"Kategori": "Sıcak İçecekler", "Urun": "Filtre Kahve", "Aciklama": "", "Fiyat": "140"},
+  {"Kategori": "Sıcak İçecekler", "Urun": "Çay", "Aciklama": "", "Fiyat": "45"},
+  {"Kategori": "Soğuk İçecekler", "Urun": "Frozen Çilek", "Aciklama": "", "Fiyat": "170"},
+  {"Kategori": "Soğuk İçecekler", "Urun": "Milkshake Çikolata", "Aciklama": "", "Fiyat": "170"},
+  {"Kategori": "Kutu İçecekler", "Urun": "Cola", "Aciklama": "", "Fiyat": "90"},
+  {"Kategori": "Kutu İçecekler", "Urun": "Su", "Aciklama": "", "Fiyat": "35"},
+  {"Kategori": "Biralar", "Urun": "Tuborg Gold (50 cl)", "Aciklama": "", "Fiyat": "190"},
+  {"Kategori": "Biralar", "Urun": "Carlsberg (50 cl)", "Aciklama": "", "Fiyat": "200"},
+  {"Kategori": "Biralar", "Urun": "Bomonti", "Aciklama": "", "Fiyat": "200"},
+  {"Kategori": "Alkollü İçecekler", "Urun": "Tekila Shot", "Aciklama": "", "Fiyat": "200"},
+  {"Kategori": "Alkollü İçecekler", "Urun": "Viski Duble", "Aciklama": "", "Fiyat": "400"},
+  {"Kategori": "Nargile", "Urun": "Çift Elma", "Aciklama": "", "Fiyat": "400"},
+  {"Kategori": "Nargile", "Urun": "Love 66", "Aciklama": "", "Fiyat": "350"}
+];
+
+let MENU = DEFAULT_MENU;
+let activeCat = "Tümü";
+
+function renderCats(){
+  const s = new Set();
+  MENU.forEach(m => { if(m.Kategori && m.Kategori.trim()) s.add(m.Kategori.trim()); });
+  const cats = ["Tümü", ...s];
+
+  document.getElementById('catBar').innerHTML = cats.map(c => `
+    <button class="cat-btn ${c===activeCat?'active':''}" onclick="selCat('${c.replace(/'/g,"\\'")}')">${c}</button>
+  `).join('');
+}
+
+function selCat(c){
+  activeCat = c;
+  document.getElementById('menuSearch').value = '';
+  renderCats();
+  renderItems();
+}
+
+function renderItems(){
+  const q = document.getElementById('menuSearch').value.toLocaleLowerCase('tr').trim();
+  let list = MENU;
+
+  if(q){
+    list = list.filter(m => 
+      (m.Urun || '').toLocaleLowerCase('tr').includes(q) || 
+      (m.Aciklama || '').toLocaleLowerCase('tr').includes(q) ||
+      (m.Kategori || '').toLocaleLowerCase('tr').includes(q)
+    );
+  } else if(activeCat !== "Tümü"){
+    list = list.filter(m => m.Kategori === activeCat);
+  }
+
+  const container = document.getElementById('menuGrid');
+  if(!list.length){
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:rgba(253,240,222,.5)">Aradığınız ürün bulunamadı.</div>';
+    return;
+  }
+
+  container.innerHTML = list.map(m => `
+    <div class="menu-item">
+      <div class="info">
+        <div class="name">${m.Urun}</div>
+        ${m.Aciklama ? `<div class="desc">${m.Aciklama}</div>` : ''}
+      </div>
+      <div class="price">${parseInt(m.Fiyat)||0}<small>₺</small></div>
+    </div>
+  `).join('');
+}
+
+function filterMenu(){ renderItems(); }
+
+function openRandevuModal(){
+  document.getElementById('randevuModal').classList.add('open');
+}
+
+function closeRandevuModal(){
+  document.getElementById('randevuModal').classList.remove('open');
+}
+
+function whatsappGonder(){
+  const isim = document.getElementById('rIsim').value.trim();
+  const kisi = document.getElementById('rKisi').value;
+  const zaman = document.getElementById('rZaman').value.trim();
+  const bolum = document.getElementById('rBolum').value;
+
+  if(!isim){
+    alert('Lütfen adınızı girin.');
+    return;
+  }
+
+  const metin = `Merhaba Art City, masa rezervasyonu yaptırmak istiyorum:\n\n` +
+                `👤 İsim: ${isim}\n` +
+                `👥 Kişi Sayısı: ${kisi}\n` +
+                `🕒 Zaman: ${zaman || 'Belirtilmedi'}\n` +
+                `📍 Bölüm Tercihi: ${bolum}`;
+
+  const wpUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NO}&text=${encodeURIComponent(metin)}`;
+  window.open(wpUrl, '_blank');
+  closeRandevuModal();
+}
+
+// Başlangıç: Önce varsayılan menüyü bas
+renderCats();
+renderItems();
+
+// Arka planda Sheets API'den güncel fiyatları çek
+async function fetchOnlineMenu(){
+  try {
+    const res = await fetch(APPS_SCRIPT_URL);
+    const json = await res.json();
+    if(json && json.ok && Array.isArray(json.menu) && json.menu.length > 0){
+      MENU = json.menu;
+      renderCats();
+      renderItems();
+    }
+  } catch(e){}
+}
+fetchOnlineMenu();
+</script>
+</body>
+</html>
